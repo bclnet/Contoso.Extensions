@@ -5,6 +5,10 @@
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
     <RepositoryUrl>https://github.com/bclnet/Contoso.Extensions</RepositoryUrl>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
+    <Company>Contoso</Company>
+    <Authors>Contoso</Authors>
+    <Version>1.0.1</Version>
+    <Description>extensions to the System namespace</Description>
   </PropertyGroup>
   <ItemGroup>
     <PackageReference Include="Microsoft.Net.Http.Headers" Version="2.2.8" />
