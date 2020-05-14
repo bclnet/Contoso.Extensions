@@ -1,9 +1,9 @@
 using Contoso.Extensions.Configuration;
 using Microsoft.Azure.Services.AppAuthentication;
+using Microsoft.Data.SqlClient;
 using Microsoft.Extensions.Configuration;
 using System;
 using System.Data;
-using System.Data.SqlClient;
 
 namespace Contoso.Extensions.Services
 {
@@ -18,7 +18,6 @@ namespace Contoso.Extensions.Services
         public static int CommandTimeout => 60;
         public static int LongCommandTimeout => 360;
         public static int VeryLongCommandTimeout => 3600;
-        public static int VeryVeryLongCommandTimeout => 36000;
 
         public IDbConnection GetConnection(string name = null)
         {
