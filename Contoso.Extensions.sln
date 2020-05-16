@@ -9,6 +9,14 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Contoso.Extensions.Caching"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Contoso.Extensions.Data", "Contoso.Extensions.Data\Contoso.Extensions.Data.csproj", "{FCE72433-D9E0-460A-A127-EF3291AB6DE2}"
 EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Contoso.Extensions.Caching.FileSystem", "Contoso.Extensions.Caching.FileSystem\Contoso.Extensions.Caching.FileSystem.csproj", "{A98D26B6-0263-4F89-83E8-00119F667410}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Contoso.Extensions.Caching.FileSystem.Tests", "Contoso.Extensions.Caching.FileSystem.Tests\Contoso.Extensions.Caching.FileSystem.Tests.csproj", "{3EBD119B-3779-4375-87D8-33CCA243050F}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Contoso.Extensions.Caching.SQLite", "Contoso.Extensions.Caching.SQLite\Contoso.Extensions.Caching.SQLite.csproj", "{A131B546-D53A-4464-9D9C-6AC3C28C7A98}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Contoso.Extensions.Caching.SQLite.Tests", "Contoso.Extensions.Caching.SQLite.Tests\Contoso.Extensions.Caching.SQLite.Tests.csproj", "{44B854D2-4990-413F-92C3-1C5F00A02074}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -27,6 +35,22 @@ Global
 		{FCE72433-D9E0-460A-A127-EF3291AB6DE2}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{FCE72433-D9E0-460A-A127-EF3291AB6DE2}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{FCE72433-D9E0-460A-A127-EF3291AB6DE2}.Release|Any CPU.Build.0 = Release|Any CPU
+		{A98D26B6-0263-4F89-83E8-00119F667410}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{A98D26B6-0263-4F89-83E8-00119F667410}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{A98D26B6-0263-4F89-83E8-00119F667410}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{A98D26B6-0263-4F89-83E8-00119F667410}.Release|Any CPU.Build.0 = Release|Any CPU
+		{3EBD119B-3779-4375-87D8-33CCA243050F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{3EBD119B-3779-4375-87D8-33CCA243050F}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{3EBD119B-3779-4375-87D8-33CCA243050F}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{3EBD119B-3779-4375-87D8-33CCA243050F}.Release|Any CPU.Build.0 = Release|Any CPU
+		{A131B546-D53A-4464-9D9C-6AC3C28C7A98}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{A131B546-D53A-4464-9D9C-6AC3C28C7A98}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{A131B546-D53A-4464-9D9C-6AC3C28C7A98}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{A131B546-D53A-4464-9D9C-6AC3C28C7A98}.Release|Any CPU.Build.0 = Release|Any CPU
+		{44B854D2-4990-413F-92C3-1C5F00A02074}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{44B854D2-4990-413F-92C3-1C5F00A02074}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{44B854D2-4990-413F-92C3-1C5F00A02074}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{44B854D2-4990-413F-92C3-1C5F00A02074}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
