@@ -13,33 +13,33 @@ namespace Contoso.Extensions.Caching.SQLite
             "UPDATE {0} " +
             "SET ExpiresAtTime = " +
                 "(CASE " +
-                    "WHEN (julianday(@UtcNow)-julianday(AbsoluteExpiration))*86400.0 <= SlidingExpirationInSeconds THEN AbsoluteExpiration " +
-                    "ELSE datetime(@UtcNow, '+'||SlidingExpirationInSeconds||' seconds') " + 
+                    "WHEN (julianday(AbsoluteExpiration)-julianday(@UtcNow))*86400.0 <= SlidingExpirationInSeconds THEN AbsoluteExpiration " +
+                    "ELSE datetime(@UtcNow, '+' || SlidingExpirationInSeconds || ' seconds') " + 
                 "END) " +
             "WHERE Id = @Id " +
-            "AND @UtcNow <= ExpiresAtTime " +
+            "AND datetime(@UtcNow) <= ExpiresAtTime " +
             "AND SlidingExpirationInSeconds IS NOT NULL " +
             "AND (AbsoluteExpiration IS NULL OR AbsoluteExpiration <> ExpiresAtTime);";
 
         const string GetCacheItemFormat =
             "SELECT Id, ExpiresAtTime, SlidingExpirationInSeconds, AbsoluteExpiration, Value " +
-            "FROM {0} WHERE Id = @Id AND @UtcNow <= ExpiresAtTime;";
+            "FROM {0} WHERE Id = @Id AND datetime(@UtcNow) <= ExpiresAtTime;";
 
-        string SetCacheItemFormat(DateTimeOffset utcNow, TimeSpan? slidingExpirationInSeconds, DateTimeOffset? absoluteExpiration, out DateTimeOffset? expiresAtTime)
+        string SetCacheItemFormat(DateTimeOffset utcNow, TimeSpan? slidingExpirationInSeconds, DateTimeOffset? absoluteExpiration, out DateTimeOffset expiresAtTime)
         {
-            expiresAtTime = slidingExpirationInSeconds == null ? absoluteExpiration : utcNow.AddSeconds(slidingExpirationInSeconds.Value.TotalSeconds);
-            return "UPDATE {0} SET Value = @Value, ExpiresAtTime = @ExpiresAtTime," +
-                "SlidingExpirationInSeconds = @SlidingExpirationInSeconds, AbsoluteExpiration = @AbsoluteExpiration " +
+            expiresAtTime = slidingExpirationInSeconds == null ? absoluteExpiration ?? DateTime.MaxValue : utcNow.AddSeconds(slidingExpirationInSeconds.Value.TotalSeconds);
+            return "UPDATE {0} SET Value = @Value, ExpiresAtTime = datetime(@ExpiresAtTime)," +
+                "SlidingExpirationInSeconds = @SlidingExpirationInSeconds, AbsoluteExpiration = datetime(@AbsoluteExpiration) " +
                 "WHERE Id = @Id; " +
                 "INSERT INTO {0} " +
                 "(Id, Value, ExpiresAtTime, SlidingExpirationInSeconds, AbsoluteExpiration) " +
-                "SELECT @Id, @Value, @ExpiresAtTime, @SlidingExpirationInSeconds, @AbsoluteExpiration " +
+                "SELECT @Id, @Value, datetime(@ExpiresAtTime), @SlidingExpirationInSeconds, datetime(@AbsoluteExpiration) " +
                 "WHERE changes() = 0;";
         }
 
         const string DeleteCacheItemFormat = "DELETE FROM {0} WHERE Id = @Id;";
 
-        public const string DeleteExpiredCacheItemsFormat = "DELETE FROM {0} WHERE @UtcNow > ExpiresAtTime;";
+        public const string DeleteExpiredCacheItemsFormat = "DELETE FROM {0} WHERE datetime(@UtcNow) > ExpiresAtTime;";
 
         public SQLiteQueries(string tableName)
         {
@@ -59,7 +59,7 @@ namespace Contoso.Extensions.Caching.SQLite
 
         public string GetCacheItemWithoutValue { get; }
 
-        public Func<DateTimeOffset, TimeSpan?, DateTimeOffset?, (string query, DateTimeOffset? expiresAtTime)> SetCacheItem { get; }
+        public Func<DateTimeOffset, TimeSpan?, DateTimeOffset?, (string query, DateTimeOffset expiresAtTime)> SetCacheItem { get; }
 
         public string DeleteCacheItem { get; }
 

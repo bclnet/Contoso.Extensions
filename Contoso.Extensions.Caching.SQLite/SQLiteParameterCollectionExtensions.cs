@@ -21,7 +21,7 @@ namespace Contoso.Extensions.Caching.SQLite
             parameters.AddWithValue(Columns.Names.SlidingExpirationInSeconds, DbType.Int64, value.HasValue ? (object)value.Value.TotalSeconds : DBNull.Value);
 
         public static SQLiteParameterCollection AddAbsoluteExpiration(this SQLiteParameterCollection parameters, DateTimeOffset? utcTime) =>
-            parameters.AddWithValue(Columns.Names.AbsoluteExpiration, DbType.DateTimeOffset, utcTime.HasValue ? (object)utcTime.Value : DBNull.Value);
+            parameters.AddWithValue(Columns.Names.AbsoluteExpiration, DbType.DateTimeOffset, utcTime.HasValue ? (object)utcTime.Value.ToString("o") : DBNull.Value);
 
         public static SQLiteParameterCollection AddWithValue(this SQLiteParameterCollection parameters, string parameterName, DbType dbType, object value)
         {

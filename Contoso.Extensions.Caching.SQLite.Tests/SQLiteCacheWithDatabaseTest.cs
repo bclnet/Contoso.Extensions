@@ -174,7 +174,7 @@ namespace Contoso.Extensions.Caching.SQLite
             Assert.Null(cacheItemInfo);
         }
 
-        [Fact]
+        [Fact(Skip = "No Key Limit")]
         public async Task SetCacheItem_FailsFor_KeyGreaterThanMaximumSize()
         {
             // Arrange
@@ -680,21 +680,21 @@ namespace Contoso.Extensions.Caching.SQLite
             {
                 command.Parameters.AddWithValue("Id", key);
                 await connection.OpenAsync().ConfigureAwait(false);
-                var reader = await command.ExecuteReaderAsync(CommandBehavior.SingleRow);
-                if (await reader.ReadAsync().ConfigureAwait(false))
-                {
-                    var cacheItemInfo = new CacheItemInfo
+                using (var reader = await command.ExecuteReaderAsync(CommandBehavior.SingleRow))
+                    if (await reader.ReadAsync().ConfigureAwait(false))
                     {
-                        Id = key,
-                        Value = (byte[])reader[1],
-                        ExpiresAtTime = DateTimeOffset.Parse(reader.GetString(2))
-                    };
-                    if (!await reader.IsDBNullAsync(3))
-                        cacheItemInfo.SlidingExpirationInSeconds = TimeSpan.FromSeconds(reader.GetInt64(3));
-                    if (!await reader.IsDBNullAsync(4))
-                        cacheItemInfo.AbsoluteExpiration = DateTimeOffset.Parse(reader.GetString(4));
-                    return cacheItemInfo;
-                }
+                        var cacheItemInfo = new CacheItemInfo
+                        {
+                            Id = key,
+                            Value = (byte[])reader[1],
+                            ExpiresAtTime = DateTime.SpecifyKind(reader.GetDateTime(2), DateTimeKind.Utc)
+                        };
+                        if (!await reader.IsDBNullAsync(3))
+                            cacheItemInfo.SlidingExpirationInSeconds = TimeSpan.FromSeconds(reader.GetInt64(3));
+                        if (!await reader.IsDBNullAsync(4))
+                            cacheItemInfo.AbsoluteExpiration = DateTime.SpecifyKind(reader.GetDateTime(4), DateTimeKind.Utc);
+                        return cacheItemInfo;
+                    }
                 return null;
             }
         }

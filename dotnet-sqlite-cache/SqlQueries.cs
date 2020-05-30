@@ -5,11 +5,11 @@ namespace Contoso.Extensions.Caching.SqliteConfig.Tools
     internal class SqlQueries
     {
         const string CreateTableFormat = "CREATE TABLE {0}(" +
-           "Id nvarchar(449) primary key not null, " +
-           "Value blob not null, " +
-           "ExpiresAtTime datetime not null, " +
-           "SlidingExpirationInSeconds bigint null, " +
-           "AbsoluteExpiration datetime null" +
+           "Id NVARCHAR(449) primary key not null, " +
+           "Value BLOB not null, " +
+           "ExpiresAtTime DATETIME not null, " +
+           "SlidingExpirationInSeconds BIGINT null, " +
+           "AbsoluteExpiration DATETIME null" +
            ")";
 
         const string CreateIndexOnExpirationTimeFormat
