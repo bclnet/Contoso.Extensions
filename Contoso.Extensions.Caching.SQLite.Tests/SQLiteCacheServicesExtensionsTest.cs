@@ -34,7 +34,6 @@ namespace Contoso.Extensions.Caching.SQLite
             // Act
             services.AddDistributedSQLiteCache(options => {
                 options.ConnectionString = "Fake";
-                options.SchemaName = "Fake";
                 options.TableName = "Fake";
             });
 

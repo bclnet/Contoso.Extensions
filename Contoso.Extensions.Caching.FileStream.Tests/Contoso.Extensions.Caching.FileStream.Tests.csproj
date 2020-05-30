@@ -24,7 +24,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\Contoso.Extensions.Caching.FileSystem\Contoso.Extensions.Caching.FileSystem.csproj" />
+    <ProjectReference Include="..\Contoso.Extensions.Caching.FileStream\Contoso.Extensions.Caching.FileStream.csproj" />
   </ItemGroup>
 
 </Project>

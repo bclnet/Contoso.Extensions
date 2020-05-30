@@ -21,9 +21,11 @@ namespace Microsoft.Extensions.DependencyInjection
                 throw new ArgumentNullException(nameof(services));
             if (setupAction == null)
                 throw new ArgumentNullException(nameof(setupAction));
+
             services.AddOptions();
             AddSQLiteCacheServices(services);
             services.Configure(setupAction);
+
             return services;
         }
 

@@ -15,10 +15,8 @@ namespace Contoso.Extensions.Caching.SQLite
     public class SQLiteCacheWithDatabaseTest
     {
         const string ConnectionStringKey = "ConnectionString";
-        const string SchemaNameKey = "SchemaName";
         const string TableNameKey = "TableName";
         readonly string _tableName;
-        readonly string _schemaName;
         readonly string _connectionString;
 
         public SQLiteCacheWithDatabaseTest()
@@ -26,8 +24,7 @@ namespace Contoso.Extensions.Caching.SQLite
             // TODO: Figure how to use config.json which requires resolving IApplicationEnvironment which currently fails.
             var memoryConfigurationData = new Dictionary<string, string>
             {
-                { ConnectionStringKey, @"Data Source=database.db;Version=3" },
-                { SchemaNameKey, "dbo" },
+                { ConnectionStringKey, @"Data Source=C:\T_\tests.db" },
                 { TableNameKey, "CacheTest" },
             };
 
@@ -35,7 +32,6 @@ namespace Contoso.Extensions.Caching.SQLite
             configurationBuilder.AddInMemoryCollection(memoryConfigurationData);
             var configuration = configurationBuilder.Build();
             _tableName = configuration[TableNameKey];
-            _schemaName = configuration[SchemaNameKey];
             _connectionString = configuration[ConnectionStringKey];
         }
 
@@ -160,12 +156,12 @@ namespace Contoso.Extensions.Caching.SQLite
 
             // Assert
             await AssertGetCacheItemFromDatabaseAsync(
-                            cache,
-                            key,
-                            expectedValue,
-                            cacheOptions.DefaultSlidingExpiration,
-                            absoluteExpiration: null,
-                            expectedExpirationTime: expectedExpirationTime);
+                cache,
+                key,
+                expectedValue,
+                cacheOptions.DefaultSlidingExpiration,
+                absoluteExpiration: null,
+                expectedExpirationTime: expectedExpirationTime);
 
             var cacheItem = await GetCacheItemFromDatabaseAsync(key);
             Assert.Equal(expectedValue, cacheItem.Value);
@@ -658,7 +654,6 @@ namespace Contoso.Extensions.Caching.SQLite
             new SQLiteCacheOptions
             {
                 ConnectionString = _connectionString,
-                SchemaName = _schemaName,
                 TableName = _tableName,
                 SystemClock = testClock ?? new TestClock(),
                 ExpiredItemsDeletionInterval = TimeSpan.FromHours(2)
@@ -678,27 +673,26 @@ namespace Contoso.Extensions.Caching.SQLite
 
         async Task<CacheItemInfo> GetCacheItemFromDatabaseAsync(string key)
         {
+            var query = $"SELECT Id, Value, ExpiresAtTime, SlidingExpirationInSeconds, AbsoluteExpiration " +
+                $"FROM {_tableName} WHERE Id = @Id";
             using (var connection = new SQLiteConnection(_connectionString))
+            using (var command = new SQLiteCommand(query, connection))
             {
-                var command = new SQLiteCommand(
-                    $"SELECT Id, Value, ExpiresAtTime, SlidingExpirationInSeconds, AbsoluteExpiration " +
-                    $"FROM {_tableName} WHERE Id = @Id",
-                    connection);
                 command.Parameters.AddWithValue("Id", key);
-                await connection.OpenAsync();
+                await connection.OpenAsync().ConfigureAwait(false);
                 var reader = await command.ExecuteReaderAsync(CommandBehavior.SingleRow);
-                if (await reader.ReadAsync())
+                if (await reader.ReadAsync().ConfigureAwait(false))
                 {
                     var cacheItemInfo = new CacheItemInfo
                     {
                         Id = key,
                         Value = (byte[])reader[1],
-                        ExpiresAtTime = DateTimeOffset.Parse(reader[2].ToString())
+                        ExpiresAtTime = DateTimeOffset.Parse(reader.GetString(2))
                     };
                     if (!await reader.IsDBNullAsync(3))
                         cacheItemInfo.SlidingExpirationInSeconds = TimeSpan.FromSeconds(reader.GetInt64(3));
                     if (!await reader.IsDBNullAsync(4))
-                        cacheItemInfo.AbsoluteExpiration = DateTimeOffset.Parse(reader[4].ToString());
+                        cacheItemInfo.AbsoluteExpiration = DateTimeOffset.Parse(reader.GetString(4));
                     return cacheItemInfo;
                 }
                 return null;

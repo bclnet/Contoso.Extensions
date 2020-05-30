@@ -15,7 +15,7 @@ namespace Contoso.Extensions.Caching.SQLite
         public static SQLiteParameterCollection AddCacheItemValue(this SQLiteParameterCollection parameters, byte[] value) =>
             value != null && value.Length < DefaultValueColumnWidth
                 ? parameters.AddWithValue(Columns.Names.CacheItemValue, DbType.Binary, DefaultValueColumnWidth, value)
-                : throw new ArgumentOutOfRangeException(nameof(value));
+                : parameters.AddWithValue(Columns.Names.CacheItemValue, DbType.Binary, value);
 
         public static SQLiteParameterCollection AddSlidingExpirationInSeconds(this SQLiteParameterCollection parameters, TimeSpan? value) =>
             parameters.AddWithValue(Columns.Names.SlidingExpirationInSeconds, DbType.Int64, value.HasValue ? (object)value.Value.TotalSeconds : DBNull.Value);
@@ -27,7 +27,6 @@ namespace Contoso.Extensions.Caching.SQLite
         {
             var parameter = new SQLiteParameter(parameterName, dbType) { Value = value };
             parameters.Add(parameter);
-            //parameter.ResetSqlDbType();
             return parameters;
         }
 
@@ -35,7 +34,6 @@ namespace Contoso.Extensions.Caching.SQLite
         {
             var parameter = new SQLiteParameter(parameterName, dbType, size) { Value = value };
             parameters.Add(parameter);
-            //parameter.ResetSqlDbType();
             return parameters;
         }
     }

@@ -1,4 +1,4 @@
-﻿namespace Contoso.Extensions.Caching.FileSystem
+﻿namespace Contoso.Extensions.Caching.FileStream
 {
     public class DatabaseOptions
     {

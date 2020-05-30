@@ -29,27 +29,29 @@ namespace Contoso.Extensions.Caching.SQLite
             var cacheOptions = options.Value;
             if (string.IsNullOrEmpty(cacheOptions.ConnectionString))
                 throw new ArgumentException($"{nameof(SQLiteCacheOptions.ConnectionString)} cannot be empty or null.");
-            if (string.IsNullOrEmpty(cacheOptions.SchemaName))
-                throw new ArgumentException($"{nameof(SQLiteCacheOptions.SchemaName)} cannot be empty or null.");
             if (string.IsNullOrEmpty(cacheOptions.TableName))
                 throw new ArgumentException($"{nameof(SQLiteCacheOptions.TableName)} cannot be empty or null.");
             if (cacheOptions.ExpiredItemsDeletionInterval.HasValue && cacheOptions.ExpiredItemsDeletionInterval.Value < MinimumExpiredItemsDeletionInterval)
                 throw new ArgumentException($"{nameof(SQLiteCacheOptions.ExpiredItemsDeletionInterval)} cannot be less than the minimum value of {MinimumExpiredItemsDeletionInterval.TotalMinutes} minutes.");
             if (cacheOptions.DefaultSlidingExpiration <= TimeSpan.Zero)
                 throw new ArgumentOutOfRangeException(nameof(cacheOptions.DefaultSlidingExpiration), cacheOptions.DefaultSlidingExpiration, "The sliding expiration value must be positive.");
+
             _systemClock = cacheOptions.SystemClock ?? new SystemClock();
             _expiredItemsDeletionInterval = cacheOptions.ExpiredItemsDeletionInterval ?? DefaultExpiredItemsDeletionInterval;
             _deleteExpiredCachedItemsDelegate = DeleteExpiredCacheItems;
             _defaultSlidingExpiration = cacheOptions.DefaultSlidingExpiration;
-            _dbOperations = new DatabaseOperations(cacheOptions.ConnectionString, cacheOptions.SchemaName, cacheOptions.TableName, _systemClock);
+            _dbOperations = new DatabaseOperations(cacheOptions.ConnectionString, cacheOptions.TableName, _systemClock);
         }
 
         public byte[] Get(string key)
         {
             if (key == null)
                 throw new ArgumentNullException(nameof(key));
+            
             var value = _dbOperations.GetCacheItem(key);
+
             ScanForExpiredItemsIfRequired();
+
             return value;
         }
 
@@ -57,9 +59,13 @@ namespace Contoso.Extensions.Caching.SQLite
         {
             if (key == null)
                 throw new ArgumentNullException(nameof(key));
+
             token.ThrowIfCancellationRequested();
+
             var value = await _dbOperations.GetCacheItemAsync(key, token).ConfigureAwait(false);
+
             ScanForExpiredItemsIfRequired();
+
             return value;
         }
 
@@ -67,7 +73,9 @@ namespace Contoso.Extensions.Caching.SQLite
         {
             if (key == null)
                 throw new ArgumentNullException(nameof(key));
+
             _dbOperations.RefreshCacheItem(key);
+
             ScanForExpiredItemsIfRequired();
         }
 
@@ -75,8 +83,11 @@ namespace Contoso.Extensions.Caching.SQLite
         {
             if (key == null)
                 throw new ArgumentNullException(nameof(key));
+
             token.ThrowIfCancellationRequested();
+
             await _dbOperations.RefreshCacheItemAsync(key, token).ConfigureAwait(false);
+
             ScanForExpiredItemsIfRequired();
         }
 
@@ -84,7 +95,9 @@ namespace Contoso.Extensions.Caching.SQLite
         {
             if (key == null)
                 throw new ArgumentNullException(nameof(key));
+
             _dbOperations.DeleteCacheItem(key);
+
             ScanForExpiredItemsIfRequired();
         }
 
@@ -92,8 +105,11 @@ namespace Contoso.Extensions.Caching.SQLite
         {
             if (key == null)
                 throw new ArgumentNullException(nameof(key));
+            
             token.ThrowIfCancellationRequested();
+
             await _dbOperations.DeleteCacheItemAsync(key, token).ConfigureAwait(false);
+
             ScanForExpiredItemsIfRequired();
         }
 
@@ -105,8 +121,11 @@ namespace Contoso.Extensions.Caching.SQLite
                 throw new ArgumentNullException(nameof(value));
             if (options == null)
                 throw new ArgumentNullException(nameof(options));
+
             GetOptions(ref options);
+
             _dbOperations.SetCacheItem(key, value, options);
+
             ScanForExpiredItemsIfRequired();
         }
 
@@ -118,9 +137,13 @@ namespace Contoso.Extensions.Caching.SQLite
                 throw new ArgumentNullException(nameof(value));
             if (options == null)
                 throw new ArgumentNullException(nameof(options));
+
             token.ThrowIfCancellationRequested();
+
             GetOptions(ref options);
+
             await _dbOperations.SetCacheItemAsync(key, value, options, token).ConfigureAwait(false);
+
             ScanForExpiredItemsIfRequired();
         }
 

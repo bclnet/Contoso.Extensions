@@ -1,4 +1,4 @@
-﻿using Contoso.Extensions.Caching.FileSystem;
+﻿using Contoso.Extensions.Caching.Stream;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -6,9 +6,9 @@ namespace System.Net.Http
 {
     public class HttpCachedClient : HttpClient
     {
-        readonly FileSystemCache _cache;
+        readonly IStreamCache _cache;
 
-        public HttpCachedClient(FileSystemCache cache)
+        public HttpCachedClient(IStreamCache cache)
         {
             if (_cache == null)
                 throw new ArgumentNullException(nameof(_cache));

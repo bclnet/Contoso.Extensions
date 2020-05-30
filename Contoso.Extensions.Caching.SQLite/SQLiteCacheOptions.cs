@@ -25,11 +25,6 @@ namespace Contoso.Extensions.Caching.SQLite
         public string ConnectionString { get; set; }
 
         /// <summary>
-        /// The schema name of the table.
-        /// </summary>
-        public string SchemaName { get; set; }
-
-        /// <summary>
         /// Name of the table where the cache items are stored.
         /// </summary>
         public string TableName { get; set; }
