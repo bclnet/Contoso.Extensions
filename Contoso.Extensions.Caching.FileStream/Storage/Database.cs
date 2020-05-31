@@ -1,6 +1,6 @@
-﻿using System;
+﻿using Contoso.Extensions.Caching.Stream;
+using System;
 using System.Threading.Tasks;
-using IOStream = System.IO.Stream;
 
 namespace Contoso.Extensions.Caching.FileStream
 {
@@ -22,22 +22,22 @@ namespace Contoso.Extensions.Caching.FileStream
             return Task.FromResult<Database>(null);
         }
 
-        public (IOStream, byte[][]) Get(long key, bool getData)
+        public MetadataStream<byte[][]> Get(long key, bool getData)
         {
-            return (null, null);
+            return null;
         }
 
-        public Task<(IOStream, byte[][])> GetAsync(long key, bool getData)
+        public Task<MetadataStream<byte[][]>> GetAsync(long key, bool getData)
         {
-            return Task.FromResult<(IOStream, byte[][])>((null, null));
+            return Task.FromResult<MetadataStream<byte[][]>>(null);
         }
 
-        public long Set(long? key, (IOStream, byte[][]) value)
+        public long Set(long? key, MetadataStream<byte[][]> value)
         {
             return 0;
         }
 
-        public Task<long> SetAsync(long? key, (IOStream, byte[][]) value)
+        public Task<long> SetAsync(long? key, MetadataStream<byte[][]> value)
         {
             return Task.FromResult<long>(0);
         }

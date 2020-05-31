@@ -52,7 +52,7 @@ namespace Contoso.Extensions.Caching.FileStream
             var creationTime = DateTimeOffset.UtcNow;
             var absoluteExpiration = GetAbsoluteExpiration(creationTime, options);
 
-            var result = _cache.Set(key, (value,
+            var result = _cache.Set(key, new MetadataStream<byte[][]>(value,
                 new byte[][]
                 {
                     BitConverter.GetBytes(absoluteExpiration?.Ticks ?? NotPresent),
@@ -74,7 +74,7 @@ namespace Contoso.Extensions.Caching.FileStream
             var creationTime = DateTimeOffset.UtcNow;
             var absoluteExpiration = GetAbsoluteExpiration(creationTime, options);
 
-            var result = await _cache.SetAsync(key, (value,
+            var result = await _cache.SetAsync(key, new MetadataStream<byte[][]>(value,
                 new byte[][]
                 {
                     BitConverter.GetBytes(absoluteExpiration?.Ticks ?? NotPresent),
@@ -132,10 +132,10 @@ namespace Contoso.Extensions.Caching.FileStream
 
             var results = _cache.Get(key, getData: getData);
 
-            MapMetadata(results.Item2, out var absExpr, out var sldExpr);
+            MapMetadata(results.Metadata, out var absExpr, out var sldExpr);
             Refresh(key, absExpr, sldExpr);
 
-            return results.Item1;
+            return results.Base;
         }
 
         async Task<IOStream> GetAndRefreshAsync(long key, bool getData, CancellationToken token = default)
@@ -146,10 +146,10 @@ namespace Contoso.Extensions.Caching.FileStream
 
             var results = await _cache.GetAsync(key, getData: getData).ConfigureAwait(false);
 
-            MapMetadata(results.Item2, out var absExpr, out var sldExpr);
+            MapMetadata(results.Metadata, out var absExpr, out var sldExpr);
             await RefreshAsync(key, absExpr, sldExpr).ConfigureAwait(false);
 
-            return results.Item1;
+            return results.Base;
         }
 
         public void Remove(long key)
