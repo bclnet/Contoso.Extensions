@@ -1,0 +1,17 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <TargetFramework>netstandard2.0</TargetFramework>
+    <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+    <PackageLicenseExpression>MIT</PackageLicenseExpression>
+    <RepositoryUrl>https://github.com/bclnet/Contoso.Extensions</RepositoryUrl>
+    <Company>Contoso</Company>
+    <Authors>Contoso</Authors>
+    <Product>Contoso.Extensions</Product>
+    <Version>1.0.1</Version>
+    <Description>Distributed cache implementation of Microsoft.Extensions.Caching.Distributed.IDistributedCache using Redis.</Description>
+  </PropertyGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\Contoso.Extensions.Caching.Abstractions\Contoso.Extensions.Caching.Abstractions.csproj" />
+  </ItemGroup>
+</Project>

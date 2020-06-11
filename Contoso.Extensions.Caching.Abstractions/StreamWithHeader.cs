@@ -1,19 +1,28 @@
-﻿using System.IO;
+﻿using System;
+using System.IO;
 using IOStream = System.IO.Stream;
 
 namespace Contoso.Extensions.Caching.Stream
 {
-    public class MetadataStream<T> : IOStream
+    [Serializable]
+    public class StreamWithHeader : IOStream
     {
-        public MetadataStream(IOStream @base, T metadata)
+        public StreamWithHeader(IOStream @base, byte[] header = null)
         {
+            if (@base == null)
+                throw new ArgumentNullException(nameof(@base));
+            //if (header == null)
+            //    throw new ArgumentNullException(nameof(header));
+
             Base = @base;
-            Metadata = metadata;
+            Header = header;
         }
+
+        public static implicit operator byte[](StreamWithHeader s) => s.Header;
 
         public IOStream Base { get; }
 
-        public T Metadata { get; }
+        public byte[] Header { get; }
 
         public override bool CanRead => Base.CanRead;
 
@@ -22,6 +31,8 @@ namespace Contoso.Extensions.Caching.Stream
         public override bool CanWrite => Base.CanWrite;
 
         public override long Length => Base.Length;
+
+        public long TotalLength => Base.Length + Header.Length;
 
         public override long Position
         {

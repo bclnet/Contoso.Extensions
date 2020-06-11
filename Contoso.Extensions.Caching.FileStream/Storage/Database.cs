@@ -22,31 +22,30 @@ namespace Contoso.Extensions.Caching.FileStream
             return Task.FromResult<Database>(null);
         }
 
-        public MetadataStream<byte[][]> Get(long key, bool getData)
+        public StreamWithHeader Get(string key, bool getData)
         {
             return null;
         }
 
-        public Task<MetadataStream<byte[][]>> GetAsync(long key, bool getData)
+        public Task<StreamWithHeader> GetAsync(string key, bool getData)
         {
-            return Task.FromResult<MetadataStream<byte[][]>>(null);
+            return Task.FromResult<StreamWithHeader>(null);
         }
 
-        public long Set(long? key, MetadataStream<byte[][]> value)
-        {
-            return 0;
-        }
-
-        public Task<long> SetAsync(long? key, MetadataStream<byte[][]> value)
-        {
-            return Task.FromResult<long>(0);
-        }
-
-        public void Delete(long key, TimeSpan? expr = null)
+        public void Set(string key, StreamWithHeader value)
         {
         }
 
-        public Task DeleteAsync(long key, TimeSpan? expr = null)
+        public Task SetAsync(string key, StreamWithHeader value)
+        {
+            return Task.CompletedTask;
+        }
+
+        public void Delete(string key, TimeSpan? expr = null)
+        {
+        }
+
+        public Task DeleteAsync(string key, TimeSpan? expr = null)
         {
             return Task.CompletedTask;
         }

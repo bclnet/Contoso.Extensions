@@ -28,19 +28,19 @@ namespace Contoso.Extensions.Caching.FileStream
 
         public void Dispose() => _cache?.Close();
 
-        public IOStream Get(long key)
+        public IOStream Get(string key)
         {
             return GetAndRefresh(key, getData: true);
         }
 
-        public async Task<IOStream> GetAsync(long key, CancellationToken token = default)
+        public async Task<IOStream> GetAsync(string key, CancellationToken token = default)
         {
             token.ThrowIfCancellationRequested();
 
             return await GetAndRefreshAsync(key, getData: true, token: token).ConfigureAwait(false);
         }
 
-        public long Set(long? key, IOStream value, StreamCacheEntryOptions options)
+        public void Set(string key, IOStream value, StreamCacheEntryOptions options)
         {
             if (value == null)
                 throw new ArgumentNullException(nameof(value));
@@ -52,17 +52,15 @@ namespace Contoso.Extensions.Caching.FileStream
             var creationTime = DateTimeOffset.UtcNow;
             var absoluteExpiration = GetAbsoluteExpiration(creationTime, options);
 
-            var result = _cache.Set(key, new MetadataStream<byte[][]>(value,
-                new byte[][]
-                {
-                    BitConverter.GetBytes(absoluteExpiration?.Ticks ?? NotPresent),
-                    BitConverter.GetBytes(options.SlidingExpiration?.Ticks ?? NotPresent),
-                }));
-
-            return result;
+            //var result = _cache.Set(key, new MetadataStream<byte[][]>(value,
+            //    new byte[][]
+            //    {
+            //        BitConverter.GetBytes(absoluteExpiration?.Ticks ?? NotPresent),
+            //        BitConverter.GetBytes(options.SlidingExpiration?.Ticks ?? NotPresent),
+            //    }));
         }
 
-        public async Task<long> SetAsync(long? key, IOStream value, StreamCacheEntryOptions options, CancellationToken token = default)
+        public async Task SetAsync(string key, IOStream value, StreamCacheEntryOptions options, CancellationToken token = default)
         {
             if (options == null)
                 throw new ArgumentNullException(nameof(options));
@@ -74,22 +72,20 @@ namespace Contoso.Extensions.Caching.FileStream
             var creationTime = DateTimeOffset.UtcNow;
             var absoluteExpiration = GetAbsoluteExpiration(creationTime, options);
 
-            var result = await _cache.SetAsync(key, new MetadataStream<byte[][]>(value,
-                new byte[][]
-                {
-                    BitConverter.GetBytes(absoluteExpiration?.Ticks ?? NotPresent),
-                    BitConverter.GetBytes(options.SlidingExpiration?.Ticks ?? NotPresent),
-                })).ConfigureAwait(false);
-
-            return result;
+            //var result = await _cache.SetAsync(key, new MetadataStream<byte[][]>(value,
+            //    new byte[][]
+            //    {
+            //        BitConverter.GetBytes(absoluteExpiration?.Ticks ?? NotPresent),
+            //        BitConverter.GetBytes(options.SlidingExpiration?.Ticks ?? NotPresent),
+            //    })).ConfigureAwait(false);
         }
 
-        public void Refresh(long key)
+        public void Refresh(string key)
         {
             GetAndRefresh(key, getData: false);
         }
 
-        public async Task RefreshAsync(long key, CancellationToken token = default)
+        public async Task RefreshAsync(string key, CancellationToken token = default)
         {
             token.ThrowIfCancellationRequested();
 
@@ -126,19 +122,19 @@ namespace Contoso.Extensions.Caching.FileStream
             finally { _connectionLock.Release(); }
         }
 
-        IOStream GetAndRefresh(long key, bool getData)
+        IOStream GetAndRefresh(string key, bool getData)
         {
             Connect();
 
             var results = _cache.Get(key, getData: getData);
 
-            MapMetadata(results.Metadata, out var absExpr, out var sldExpr);
+            MapMetadata(results.Header, out var absExpr, out var sldExpr);
             Refresh(key, absExpr, sldExpr);
 
             return results.Base;
         }
 
-        async Task<IOStream> GetAndRefreshAsync(long key, bool getData, CancellationToken token = default)
+        async Task<IOStream> GetAndRefreshAsync(string key, bool getData, CancellationToken token = default)
         {
             token.ThrowIfCancellationRequested();
 
@@ -146,39 +142,39 @@ namespace Contoso.Extensions.Caching.FileStream
 
             var results = await _cache.GetAsync(key, getData: getData).ConfigureAwait(false);
 
-            MapMetadata(results.Metadata, out var absExpr, out var sldExpr);
+            MapMetadata(results.Header, out var absExpr, out var sldExpr);
             await RefreshAsync(key, absExpr, sldExpr).ConfigureAwait(false);
 
             return results.Base;
         }
 
-        public void Remove(long key)
+        public void Remove(string key)
         {
             Connect();
 
             _cache.Delete(key);
         }
 
-        public async Task RemoveAsync(long key, CancellationToken token = default)
+        public async Task RemoveAsync(string key, CancellationToken token = default)
         {
             await ConnectAsync(token).ConfigureAwait(false);
 
             await _cache.DeleteAsync(key).ConfigureAwait(false);
         }
 
-        void MapMetadata(byte[][] meta, out DateTimeOffset? absoluteExpiration, out TimeSpan? slidingExpiration)
+        void MapMetadata(byte[] header, out DateTimeOffset? absoluteExpiration, out TimeSpan? slidingExpiration)
         {
             absoluteExpiration = null;
             slidingExpiration = null;
-            var absoluteExpirationTicks = BitConverter.ToInt64(meta[0], 0);
-            if (absoluteExpirationTicks != NotPresent)
-                absoluteExpiration = new DateTimeOffset(absoluteExpirationTicks, TimeSpan.Zero);
-            var slidingExpirationTicks = BitConverter.ToInt64(meta[1], 0);
-            if (slidingExpirationTicks != NotPresent)
-                slidingExpiration = new TimeSpan(slidingExpirationTicks);
+            //var absoluteExpirationTicks = BitConverter.ToInt64(header[0], 0);
+            //if (absoluteExpirationTicks != NotPresent)
+            //    absoluteExpiration = new DateTimeOffset(absoluteExpirationTicks, TimeSpan.Zero);
+            //var slidingExpirationTicks = BitConverter.ToInt64(header[1], 0);
+            //if (slidingExpirationTicks != NotPresent)
+            //    slidingExpiration = new TimeSpan(slidingExpirationTicks);
         }
 
-        void Refresh(long key, DateTimeOffset? absExpr, TimeSpan? sldExpr)
+        void Refresh(string key, DateTimeOffset? absExpr, TimeSpan? sldExpr)
         {
             // Note Refresh has no effect if there is just an absolute expiration (or neither).
             if (sldExpr.HasValue)
@@ -195,7 +191,7 @@ namespace Contoso.Extensions.Caching.FileStream
             }
         }
 
-        async Task RefreshAsync(long key, DateTimeOffset? absExpr, TimeSpan? sldExpr, CancellationToken token = default)
+        async Task RefreshAsync(string key, DateTimeOffset? absExpr, TimeSpan? sldExpr, CancellationToken token = default)
         {
             token.ThrowIfCancellationRequested();
 

@@ -11,7 +11,7 @@ namespace Contoso.Extensions.Caching.FileStream
         public void GetMissingKeyReturnsNull()
         {
             var cache = FileStreamTestConfig.CreateCacheInstance(GetType().Name);
-            long key = -1L; // non-existent-key
+            var key = "non-existent-key";
 
             var result = cache.Get(key);
             Assert.Null(result);
@@ -21,10 +21,10 @@ namespace Contoso.Extensions.Caching.FileStream
         public void SetAndGetReturnsObject()
         {
             var cache = FileStreamTestConfig.CreateCacheInstance(GetType().Name);
-            var value = new MemoryStream(new byte[1]);
-            long key = 0L; // myKey
+            var value = new StreamWithHeader(new MemoryStream(new byte[1]));
+            var key = "myKey";
 
-            key = cache.Set(key, value);
+            cache.Set(key, value);
 
             var result = cache.Get(key);
             Assert.Equal(value, result);
@@ -34,15 +34,15 @@ namespace Contoso.Extensions.Caching.FileStream
         public void SetAlwaysOverwrites()
         {
             var cache = FileStreamTestConfig.CreateCacheInstance(GetType().Name);
-            var value1 = new MemoryStream(new byte[1] { 1 });
-            long key = 0L; // myKey
+            var value1 = new StreamWithHeader(new MemoryStream(new byte[1] { 1 }));
+            var key = "myKey";
 
-            key = cache.Set(key, value1);
+            cache.Set(key, value1);
             var result = cache.Get(key);
             Assert.Equal(value1, result);
 
-            var value2 = new MemoryStream(new byte[1] { 2 });
-            key = cache.Set(key, value2);
+            var value2 = new StreamWithHeader(new MemoryStream(new byte[1] { 2 }));
+            cache.Set(key, value2);
             result = cache.Get(key);
             Assert.Equal(value2, result);
         }
@@ -51,10 +51,10 @@ namespace Contoso.Extensions.Caching.FileStream
         public void RemoveRemoves()
         {
             var cache = FileStreamTestConfig.CreateCacheInstance(GetType().Name);
-            var value = new MemoryStream(new byte[1]);
-            long key = 0L; // myKey
+            var value = new StreamWithHeader(new MemoryStream(new byte[1]));
+            var key = "myKey";
 
-            key = cache.Set(key, value);
+            cache.Set(key, value);
             var result = cache.Get(key);
             Assert.Equal(value, result);
 
@@ -68,7 +68,7 @@ namespace Contoso.Extensions.Caching.FileStream
         {
             var cache = FileStreamTestConfig.CreateCacheInstance(GetType().Name);
             MemoryStream value = null;
-            long key = 0L; // myKey
+            var key = "myKey";
 
             Assert.Throws<ArgumentNullException>(() => cache.Set(key, value));
         }

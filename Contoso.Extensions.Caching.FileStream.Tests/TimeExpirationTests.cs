@@ -13,8 +13,8 @@ namespace Contoso.Extensions.Caching.FileStream
         {
             var cache = FileStreamTestConfig.CreateCacheInstance(GetType().Name);
 
-            var key = 0L; // myKey
-            var value = new MemoryStream(new byte[1]);
+            var key = "myKey";
+            var value = new StreamWithHeader(new MemoryStream(new byte[1]));
 
             var expected = DateTimeOffset.Now - TimeSpan.FromMinutes(1);
             Assert.Throws<ArgumentOutOfRangeException>(nameof(StreamCacheEntryOptions.AbsoluteExpiration), () =>
@@ -28,8 +28,8 @@ namespace Contoso.Extensions.Caching.FileStream
         {
             var cache = FileStreamTestConfig.CreateCacheInstance(GetType().Name);
 
-            var key = 0L; // myKey
-            var value = new MemoryStream(new byte[1]);
+            var key = "myKey";
+            var value = new StreamWithHeader(new MemoryStream(new byte[1]));
 
             cache.Set(key, value, new StreamCacheEntryOptions().SetAbsoluteExpiration(TimeSpan.FromSeconds(1)));
 
@@ -50,8 +50,8 @@ namespace Contoso.Extensions.Caching.FileStream
         {
             var cache = FileStreamTestConfig.CreateCacheInstance(GetType().Name);
 
-            var key = 0L; // myKey
-            var value = new MemoryStream(new byte[1]);
+            var key = "myKey";
+            var value = new StreamWithHeader(new MemoryStream(new byte[1]));
 
             cache.Set(key, value, new StreamCacheEntryOptions().SetAbsoluteExpiration(TimeSpan.FromSeconds(0.25)));
 
@@ -64,8 +64,8 @@ namespace Contoso.Extensions.Caching.FileStream
         {
             var cache = FileStreamTestConfig.CreateCacheInstance(GetType().Name);
 
-            var key = 0L; // myKey
-            var value = new MemoryStream(new byte[1]);
+            var key = "myKey";
+            var value = new StreamWithHeader(new MemoryStream(new byte[1]));
 
             Assert.Throws<ArgumentOutOfRangeException>(nameof(StreamCacheEntryOptions.AbsoluteExpirationRelativeToNow), () =>
             {
@@ -78,8 +78,8 @@ namespace Contoso.Extensions.Caching.FileStream
         {
             var cache = FileStreamTestConfig.CreateCacheInstance(GetType().Name);
 
-            var key = 0L; // myKey
-            var value = new MemoryStream(new byte[1]);
+            var key = "myKey";
+            var value = new StreamWithHeader(new MemoryStream(new byte[1]));
 
             Assert.Throws<ArgumentOutOfRangeException>(nameof(StreamCacheEntryOptions.AbsoluteExpirationRelativeToNow), () =>
             {
@@ -92,8 +92,8 @@ namespace Contoso.Extensions.Caching.FileStream
         {
             var cache = FileStreamTestConfig.CreateCacheInstance(GetType().Name);
 
-            var key = 0L; // myKey
-            var value = new MemoryStream(new byte[1]);
+            var key = "myKey";
+            var value = new StreamWithHeader(new MemoryStream(new byte[1]));
 
             cache.Set(key, value, new StreamCacheEntryOptions().SetAbsoluteExpiration(TimeSpan.FromSeconds(1)));
 
@@ -113,8 +113,8 @@ namespace Contoso.Extensions.Caching.FileStream
         {
             var cache = FileStreamTestConfig.CreateCacheInstance(GetType().Name);
 
-            var key = 0L; // myKey
-            var value = new MemoryStream(new byte[1]);
+            var key = "myKey";
+            var value = new StreamWithHeader(new MemoryStream(new byte[1]));
 
             cache.Set(key, value, new StreamCacheEntryOptions().SetAbsoluteExpiration(TimeSpan.FromSeconds(0.25)));
 
@@ -127,8 +127,8 @@ namespace Contoso.Extensions.Caching.FileStream
         {
             var cache = FileStreamTestConfig.CreateCacheInstance(GetType().Name);
 
-            var key = 0L; // myKey
-            var value = new MemoryStream(new byte[1]);
+            var key = "myKey";
+            var value = new StreamWithHeader(new MemoryStream(new byte[1]));
 
             Assert.Throws<ArgumentOutOfRangeException>(nameof(StreamCacheEntryOptions.SlidingExpiration), () =>
             {
@@ -141,8 +141,8 @@ namespace Contoso.Extensions.Caching.FileStream
         {
             var cache = FileStreamTestConfig.CreateCacheInstance(GetType().Name);
 
-            var key = 0L; // myKey
-            var value = new MemoryStream(new byte[1]);
+            var key = "myKey";
+            var value = new StreamWithHeader(new MemoryStream(new byte[1]));
 
             Assert.Throws<ArgumentOutOfRangeException>(nameof(StreamCacheEntryOptions.SlidingExpiration), () =>
             {
@@ -155,8 +155,8 @@ namespace Contoso.Extensions.Caching.FileStream
         {
             var cache = FileStreamTestConfig.CreateCacheInstance(GetType().Name);
 
-            var key = 0L; // myKey
-            var value = new MemoryStream(new byte[1]);
+            var key = "myKey";
+            var value = new StreamWithHeader(new MemoryStream(new byte[1]));
 
             cache.Set(key, value, new StreamCacheEntryOptions().SetSlidingExpiration(TimeSpan.FromSeconds(1)));
 
@@ -174,8 +174,8 @@ namespace Contoso.Extensions.Caching.FileStream
         {
             var cache = FileStreamTestConfig.CreateCacheInstance(GetType().Name);
 
-            var key = 0L; // myKey
-            var value = new MemoryStream(new byte[1]);
+            var key = "myKey";
+            var value = new StreamWithHeader(new MemoryStream(new byte[1]));
 
             cache.Set(key, value, new StreamCacheEntryOptions().SetSlidingExpiration(TimeSpan.FromSeconds(0.25)));
 
@@ -188,8 +188,8 @@ namespace Contoso.Extensions.Caching.FileStream
         {
             var cache = FileStreamTestConfig.CreateCacheInstance(GetType().Name);
 
-            var key = 0L; // myKey
-            var value = new MemoryStream(new byte[1]);
+            var key = "myKey";
+            var value = new StreamWithHeader(new MemoryStream(new byte[1]));
 
             cache.Set(key, value, new StreamCacheEntryOptions().SetSlidingExpiration(TimeSpan.FromSeconds(1)));
 
@@ -214,8 +214,8 @@ namespace Contoso.Extensions.Caching.FileStream
         {
             var cache = FileStreamTestConfig.CreateCacheInstance(GetType().Name);
 
-            var key = 0L; // myKey
-            var value = new MemoryStream(new byte[1]);
+            var key = "myKey";
+            var value = new StreamWithHeader(new MemoryStream(new byte[1]));
 
             cache.Set(key, value, new StreamCacheEntryOptions()
                 .SetSlidingExpiration(TimeSpan.FromSeconds(1))
