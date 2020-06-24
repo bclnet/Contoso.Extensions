@@ -54,7 +54,7 @@ namespace Microsoft.Extensions.Caching.Distributed
         public DistributedCacheEntryOptions EntryOptions { get; private set; }
         public Func<object, object[], string[]> CacheTags { get; private set; }
 
-        internal string GetNamespace(object[] values)
+        public string GetName(params object[] values)
         {
             if (values == null || values.Length == 0)
                 return Name;

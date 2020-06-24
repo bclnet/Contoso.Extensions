@@ -53,8 +53,9 @@ namespace Microsoft.Extensions.Caching.Memory
         public MemoryCacheItemBuilderAsync BuilderAsync { get; private set; }
         public MemoryCacheEntryOptions EntryOptions { get; private set; }
         public Func<object, object[], string[]> CacheTags { get; private set; }
+        public PostEvictionDelegate PostEvictionCallback { get; set; }
 
-        internal string GetNamespace(object[] values)
+        public string GetName(params object[] values)
         {
             if (values == null || values.Length == 0)
                 return Name;

@@ -31,14 +31,14 @@ namespace System.Net.Http
         async Task<HttpResponseMessage> WrappedSendAsync(Task<HttpResponseMessage> @base, HttpRequestMessage request, CancellationToken cancellationToken)
         {
             var key = GetKey(request);
-            var response = await GetCachedResponseAsync(key, request, cancellationToken);
-            if (response != null)
-            {
-                return response;
-            }
-            response = await @base;
+            //var response = await GetCachedResponseAsync(key, request, cancellationToken);
+            //if (response != null)
+            //{
+            //    return response;
+            //}
+            var response = await @base;
             await SetCachedResponseAsync(key, response, cancellationToken);
-            var sameResponse = await GetCachedResponseAsync(key, request, cancellationToken);
+            response = await GetCachedResponseAsync(key, request, cancellationToken);
             return response;
         }
 
@@ -47,7 +47,7 @@ namespace System.Net.Http
 
         async Task SetCachedResponseAsync(string key, HttpResponseMessage response, CancellationToken cancellationToken)
         {
-            var value = HttpSerDes.SerializeResponseMessage(response);
+            var value = await HttpSerDes.SerializeResponseMessageAsync(response);
             await _cache.SetAsync(key, value, cancellationToken);
         }
 
@@ -59,7 +59,7 @@ namespace System.Net.Http
             if (!(item is StreamWithHeader value))
                 throw new InvalidOperationException($"Cache must return a {nameof(StreamWithHeader)}");
 
-            var response = HttpSerDes.DeserializeResponseMessage(value);
+            var response = await HttpSerDes.DeserializeResponseMessageAsync(value);
             response.RequestMessage = request;
             return response;
         }

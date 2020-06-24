@@ -14,13 +14,25 @@ namespace Microsoft.Extensions.Caching.Memory
         static PropertyInfo EntriesCollectionProperty;
 
         /// <summary>
+        /// Gets the entries collection.
+        /// </summary>
+        /// <param name="cache">The cache.</param>
+        /// <returns></returns>
+        public static System.Collections.IDictionary GetEntriesCollection(this IMemoryCache cache)
+        {
+            if (EntriesCollectionProperty == null)
+                EntriesCollectionProperty = cache.GetType().GetProperty("EntriesCollection", BindingFlags.NonPublic | BindingFlags.Instance);
+            return EntriesCollectionProperty.GetValue(cache) as System.Collections.IDictionary;
+        }
+
+        /// <summary>
         /// Tries the get entry.
         /// </summary>
         /// <param name="cache">The cache.</param>
         /// <param name="key">The key.</param>
         /// <param name="entry">The entry.</param>
         /// <returns><c>true</c> if XXXX, <c>false</c> otherwise.</returns>
-        public static bool TryGetUnsafeEntry(this IMemoryCache cache, string key, out ICacheEntry entry)
+        public static bool TryGetEntry(this IMemoryCache cache, string key, out ICacheEntry entry)
         {
             if (EntriesCollectionProperty == null)
                 EntriesCollectionProperty = cache.GetType().GetProperty("EntriesCollection", BindingFlags.NonPublic | BindingFlags.Instance);
@@ -35,7 +47,7 @@ namespace Microsoft.Extensions.Caching.Memory
         /// <param name="cache">The cache.</param>
         /// <param name="key">The key.</param>
         /// <returns><c>true</c> if [contains] [the specified key]; otherwise, <c>false</c>.</returns>
-        public static bool Contains(this IMemoryCache cache, string key) => cache.TryGetValue(key, out var dummy);
+        public static bool Contains(this IMemoryCache cache, string key) => cache.TryGetValue(key, out _);
 
         /// <summary>
         /// Sets the cache entry change expiration.

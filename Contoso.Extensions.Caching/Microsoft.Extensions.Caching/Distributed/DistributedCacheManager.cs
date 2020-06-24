@@ -3,8 +3,10 @@ using Microsoft.Extensions.Primitives;
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.IO.Compression;
 using System.Linq;
 using System.Text;
+using System.Text.Json;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -15,8 +17,8 @@ namespace Microsoft.Extensions.Caching.Distributed
         static readonly ReaderWriterLockSlim _rwLock = new ReaderWriterLockSlim(LockRecursionPolicy.SupportsRecursion);
         readonly static byte[] EmptyValue = new byte[] { 0 };
 
-        public static void Remove(this IDistributedCache cache, DistributedCacheRegistration key, params object[] values) => cache.Remove(key.GetNamespace(values));
-        public static bool Contains(this IDistributedCache cache, DistributedCacheRegistration key, params object[] values) => cache.Contains(key.GetNamespace(values));
+        public static void Remove(this IDistributedCache cache, DistributedCacheRegistration key, params object[] values) => cache.Remove(key.GetName(values));
+        public static bool Contains(this IDistributedCache cache, DistributedCacheRegistration key, params object[] values) => cache.Contains(key.GetName(values));
 
         public static void Touch(this IDistributedCache cache, string[] names)
         {
@@ -53,9 +55,8 @@ namespace Microsoft.Extensions.Caching.Distributed
             finally { _rwLock.ExitWriteLock(); }
         }
 
-        static IEnumerable<IChangeToken> MakeChangeTokens(IDistributedCache cache, object tag, IEnumerable<string> names)
-        {
-            return names.Select(x =>
+        static IEnumerable<IChangeToken> MakeChangeTokens(IDistributedCache cache, object tag, IEnumerable<string> names) =>
+            names.Select(x =>
             {
                 if (x.StartsWith("#")) return new { name = x.Substring(1), regionName = "#" };
                 var name = x;
@@ -66,28 +67,37 @@ namespace Microsoft.Extensions.Caching.Distributed
                 x.Key == "#" ? FileCacheDependency.CacheFile.MakeFileWatchChangeToken(x.Select(y => y.name))
                 : cache.MakeCacheEntryChangeToken(x.Select(y => y.name))
             ).Where(x => x != null).ToList();
-        }
 
         static T GetOrCreateUsingLock<T>(IDistributedCache cache, DistributedCacheRegistration key, object tag, object[] values)
         {
             var rwLock = key._rwLock ?? _rwLock;
-            var name = key.GetNamespace(values);
+            var name = key.GetName(values);
             rwLock.EnterUpgradeableReadLock();
             var notCacheResult = typeof(T) != typeof(DistributedCacheResult);
             try
             {
                 // double lock test
-                var value = DecodeValue(cache.Get(name));
+                var value = Deserialize(cache.Get(name));
                 if (value != null)
                     return notCacheResult && value is DistributedCacheResult cacheResult ? (T)cacheResult.Result : (T)value;
                 rwLock.EnterWriteLock();
                 try
                 {
-                    value = DecodeValue(cache.Get(name));
+                    value = Deserialize(cache.Get(name));
                     if (value != null)
                         return notCacheResult && value is DistributedCacheResult cacheResult ? (T)cacheResult.Result : (T)value;
                     // create value
                     value = key.BuilderAsync != null ? Task.Run(() => CreateValueAsync<T>(key, tag, values)).GetAwaiter().GetResult() : CreateValue<T>(key, tag, values);
+                    if (value == DistributedCacheResult.CacheResult)
+                    {
+                        value = Deserialize(cache.Get(name));
+                        return value != null
+                            ? notCacheResult && value is DistributedCacheResult cacheResult ? (T)cacheResult.Result : (T)value
+                            : default;
+                    }
+                    else if (value == DistributedCacheResult.NoResult)
+                        return default;
+                    // cache value
                     var entryOptions = key.EntryOptions is DistributedCacheEntryOptions2 entryOptions2 ? entryOptions2.ToEntryOptions() : key.EntryOptions;
                     if (key.CacheTags != null)
                     {
@@ -95,7 +105,6 @@ namespace Microsoft.Extensions.Caching.Distributed
                         if (tags != null && tags.Any() && entryOptions is DistributedCacheEntryOptions2 entryOptions3)
                             ((List<IChangeToken>)entryOptions3.ExpirationTokens).AddRange(MakeChangeTokens(cache, tag, tags));
                     }
-                    // add value
                     var valueAsResult = value is DistributedCacheResult result ? result : new DistributedCacheResult(value);
                     valueAsResult.WeakTag = new WeakReference(tag);
                     valueAsResult.Key = key;
@@ -112,23 +121,33 @@ namespace Microsoft.Extensions.Caching.Distributed
         static Task<T> GetOrCreateUsingLockAsync<T>(IDistributedCache cache, DistributedCacheRegistration key, object tag, object[] values)
         {
             var rwLock = key._rwLock ?? _rwLock;
-            var name = key.GetNamespace(values);
+            var name = key.GetName(values);
             rwLock.EnterUpgradeableReadLock();
             var notCacheResult = typeof(T) != typeof(DistributedCacheResult);
             try
             {
                 // double lock test
-                var value = DecodeValue(cache.Get(name));
+                var value = Deserialize(cache.Get(name));
                 if (value != null)
                     return Task.FromResult(notCacheResult && value is DistributedCacheResult cacheResult ? (T)cacheResult.Result : (T)value);
                 rwLock.EnterWriteLock();
                 try
                 {
-                    value = DecodeValue(cache.Get(name));
+                    value = Deserialize(cache.Get(name));
                     if (value != null)
                         return Task.FromResult(notCacheResult && value is DistributedCacheResult cacheResult ? (T)cacheResult.Result : (T)value);
                     // create value
                     value = key.BuilderAsync != null ? Task.Run(() => CreateValueAsync<T>(key, tag, values)).Result : CreateValue<T>(key, tag, values);
+                    if (value == DistributedCacheResult.CacheResult)
+                    {
+                        value = Deserialize(cache.Get(name));
+                        return value != null
+                            ? Task.FromResult(notCacheResult && value is DistributedCacheResult cacheResult ? (T)cacheResult.Result : (T)value)
+                            : default;
+                    }
+                    if (value == DistributedCacheResult.NoResult)
+                        return Task.FromResult(default(T));
+                    // cache value
                     var entryOptions = key.EntryOptions is DistributedCacheEntryOptions2 entryOptions2 ? entryOptions2.ToEntryOptions() : key.EntryOptions;
                     if (key.CacheTags != null)
                     {
@@ -136,7 +155,6 @@ namespace Microsoft.Extensions.Caching.Distributed
                         if (tags != null && tags.Any() && entryOptions is DistributedCacheEntryOptions2 entryOptions3)
                             ((List<IChangeToken>)entryOptions3.ExpirationTokens).AddRange(MakeChangeTokens(cache, tag, tags));
                     }
-                    // add value
                     var valueAsResult = value is DistributedCacheResult result ? result : new DistributedCacheResult(value);
                     valueAsResult.WeakTag = new WeakReference(tag);
                     valueAsResult.Key = key;
@@ -152,14 +170,14 @@ namespace Microsoft.Extensions.Caching.Distributed
 
         static void SetValueWithETagInsideLock(IDistributedCache cache, string name, DistributedCacheResult value)
         {
-            try { cache.Set(name, EncodeValue(value), value.EntryOptions); }
+            try { cache.Set(name, Serialize(value), value.EntryOptions); }
             catch (InvalidOperationException) { }
             catch (Exception e) { Console.WriteLine(e); }
             finally
             {
                 if (!string.IsNullOrEmpty(value.ETag))
                 {
-                    var etagName = value.Key.GetNamespace(new[] { value.ETag });
+                    var etagName = value.Key.GetName(new[] { value.ETag });
                     // ensure base is still exists, then add
                     var baseValue = cache.Get(name);
                     if (baseValue != null)
@@ -171,7 +189,50 @@ namespace Microsoft.Extensions.Caching.Distributed
         static T CreateValue<T>(DistributedCacheRegistration key, object tag, object[] values) => (T)key.Builder(tag, values);
         static async Task<T> CreateValueAsync<T>(DistributedCacheRegistration key, object tag, object[] values) => (T)await key.BuilderAsync(tag, values);
 
-        static byte[] EncodeValue(object value) => null;
-        static object DecodeValue(byte[] value) => null;
+        public static Func<object, byte[]> Serialize = (value) =>
+        {
+            if (value == null)
+                return null;
+            using (var s = new MemoryStream())
+            using (var w = new BinaryWriter(s))
+            {
+                var type = value.GetType();
+                w.Write(type.AssemblyQualifiedName);
+                w.Write(JsonSerializer.Serialize(value, type));
+                return Compress(s.ToArray());
+            }
+        };
+        public static Func<byte[], object> Deserialize = (value) =>
+        {
+            if (value == null)
+                return null;
+            using (var s = new MemoryStream(Decompress(value)))
+            using (var r = new BinaryReader(s))
+            {
+                var type = Type.GetType(r.ReadString(), true);
+                return JsonSerializer.Deserialize(r.ReadString(), type);
+            }
+        };
+
+        static byte[] Compress(byte[] input)
+        {
+            using (var outputStream = new MemoryStream())
+            {
+                using (var zip = new GZipStream(outputStream, CompressionMode.Compress))
+                    zip.Write(input, 0, input.Length);
+                return outputStream.ToArray();
+            }
+        }
+
+        static byte[] Decompress(byte[] input)
+        {
+            using (var outputStream = new MemoryStream())
+            {
+                using (var inputStream = new MemoryStream(input))
+                using (var zip = new GZipStream(inputStream, CompressionMode.Decompress))
+                    zip.CopyTo(outputStream);
+                return outputStream.ToArray();
+            }
+        }
     }
 }

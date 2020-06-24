@@ -3,14 +3,21 @@ using System.Collections.Generic;
 using System.IO;
 using System.IO.Compression;
 using System.Linq;
+using System.Reflection;
 using System.Runtime.Serialization.Formatters.Binary;
+using System.Threading.Tasks;
 
 namespace System.Net.Http
 {
     public static class HttpSerDes
     {
-        public static StreamWithHeader SerializeResponseMessage(HttpResponseMessage response)
+        static readonly Type ResponseContentType = typeof(HttpContent).Assembly.GetType("System.Net.Http.HttpConnectionResponseContent");
+        static readonly MethodInfo SetStreamMethod = ResponseContentType?.GetMethod("SetStream");
+
+        public static async Task<StreamWithHeader> SerializeResponseMessageAsync(HttpResponseMessage response)
         {
+            if (ResponseContentType == null)
+                throw new InvalidOperationException("Unable to find HttpConnectionResponseContent");
             if (response == null)
                 throw new ArgumentNullException(nameof(response));
 
@@ -18,16 +25,26 @@ namespace System.Net.Http
             using (var s = new MemoryStream())
             {
                 var f = new BinaryFormatter();
-                f.Serialize(s, response.Version.ToString());
                 f.Serialize(s, (int)response.StatusCode);
+                f.Serialize(s, response.Version.ToString());
+                f.Serialize(s, response.ReasonPhrase != null);
+                if (response.ReasonPhrase != null) f.Serialize(s, response.ReasonPhrase);
                 f.Serialize(s, headers);
-                var compressed = Compress(s.ToArray());
-                return new StreamWithHeader(new MemoryStream(), compressed);
+                var header = Compress(s.ToArray());
+
+                var @base = await response.Content.ReadAsStreamAsync();
+                //var @base = new MemoryStream();
+                //await response.Content.CopyToAsync(@base);
+
+                @base.Position = 0;
+                return new StreamWithHeader(@base, header);
             }
         }
 
-        public static HttpResponseMessage DeserializeResponseMessage(StreamWithHeader source)
+        public static Task<HttpResponseMessage> DeserializeResponseMessageAsync(StreamWithHeader source)
         {
+            if (ResponseContentType == null)
+                throw new InvalidOperationException("Unable to find HttpConnectionResponseContent");
             if (source == null)
                 throw new ArgumentNullException(nameof(source));
             if (source.Header == null)
@@ -36,15 +53,21 @@ namespace System.Net.Http
             using (var s = new MemoryStream(Decompress(source.Header)))
             {
                 var f = new BinaryFormatter();
-                var response = new HttpResponseMessage
+                var response = new HttpResponseMessage((HttpStatusCode)(int)f.Deserialize(s))
                 {
                     Version = new Version((string)f.Deserialize(s)),
-                    StatusCode = (HttpStatusCode)(int)f.Deserialize(s),
+                    ReasonPhrase = (bool)f.Deserialize(s) ? (string)f.Deserialize(s) : null,
                 };
                 var headers = (Dictionary<string, IEnumerable<string>>)f.Deserialize(s);
                 foreach (var header in headers)
                     response.Headers.Add(header.Key, header.Value);
-                return response;
+
+                var content = new StreamContent(source.Base);
+                //var content = (HttpContent)Activator.CreateInstance(ResponseContentType);
+                //SetStreamMethod.Invoke(content, new[] { source.Base });
+
+                response.Content = content;
+                return Task.FromResult(response);
             }
         }
 

@@ -12,8 +12,8 @@ namespace Microsoft.Extensions.Caching.Memory
         static readonly ReaderWriterLockSlim _rwLock = new ReaderWriterLockSlim(LockRecursionPolicy.SupportsRecursion);
         readonly static object EmptyValue = new object();
 
-        public static void Remove(this IMemoryCache cache, MemoryCacheRegistration key, params object[] values) => cache.Remove(key.GetNamespace(values));
-        public static bool Contains(this IMemoryCache cache, MemoryCacheRegistration key, params object[] values) => cache.Contains(key.GetNamespace(values));
+        public static void Remove(this IMemoryCache cache, MemoryCacheRegistration key, params object[] values) => cache.Remove(key.GetName(values));
+        public static bool Contains(this IMemoryCache cache, MemoryCacheRegistration key, params object[] values) => cache.Contains(key.GetName(values));
 
         public static void Touch(this IMemoryCache cache, params string[] names)
         {
@@ -51,9 +51,8 @@ namespace Microsoft.Extensions.Caching.Memory
             finally { _rwLock.ExitWriteLock(); }
         }
 
-        static IEnumerable<IChangeToken> MakeChangeTokens(IMemoryCache cache, object tag, IEnumerable<string> names)
-        {
-            return names.Select(x =>
+        static IEnumerable<IChangeToken> MakeChangeTokens(IMemoryCache cache, object tag, IEnumerable<string> names) =>
+            names.Select(x =>
             {
                 if (x.StartsWith("#")) return new { name = x.Substring(1), regionName = "#" };
                 var name = x;
@@ -64,12 +63,11 @@ namespace Microsoft.Extensions.Caching.Memory
                 x.Key == "#" ? FileCacheDependency.CacheFile.MakeFileWatchChangeToken(x.Select(y => y.name))
                 : cache.MakeCacheEntryChangeToken(x.Select(y => y.name))
             ).Where(x => x != null).ToList();
-        }
 
         static T GetOrCreateUsingLock<T>(IMemoryCache cache, MemoryCacheRegistration key, object tag, object[] values)
         {
             var rwLock = key._rwLock ?? _rwLock;
-            var name = key.GetNamespace(values);
+            var name = key.GetName(values);
             rwLock.EnterUpgradeableReadLock();
             var notCacheResult = typeof(T) != typeof(MemoryCacheResult);
             try
@@ -86,6 +84,16 @@ namespace Microsoft.Extensions.Caching.Memory
                         return notCacheResult && value is MemoryCacheResult cacheResult ? (T)cacheResult.Result : (T)value;
                     // create value
                     value = key.BuilderAsync != null ? Task.Run(() => CreateValueAsync<T>(key, tag, values)).Result : CreateValue<T>(key, tag, values);
+                    if (value == MemoryCacheResult.CacheResult)
+                    {
+                        value = cache.Get(name);
+                        return value != null
+                            ? notCacheResult && value is MemoryCacheResult cacheResult ? (T)cacheResult.Result : (T)value
+                            : default;
+                    }
+                    else if (value == MemoryCacheResult.NoResult)
+                        return default;
+                    // cache value
                     var entryOptions = key.EntryOptions is MemoryCacheEntryOptions2 entryOptions2 ? entryOptions2.ToEntryOptions() : key.EntryOptions;
                     if (key.CacheTags != null)
                     {
@@ -93,7 +101,8 @@ namespace Microsoft.Extensions.Caching.Memory
                         if (tags != null && tags.Any())
                             ((List<IChangeToken>)entryOptions.ExpirationTokens).AddRange(MakeChangeTokens(cache, tag, tags));
                     }
-                    // add value
+                    if (key.PostEvictionCallback != null)
+                        entryOptions.RegisterPostEvictionCallback(key.PostEvictionCallback, tag);
                     var valueAsResult = value is MemoryCacheResult result ? result : new MemoryCacheResult(value);
                     valueAsResult.WeakTag = new WeakReference(tag);
                     valueAsResult.Key = key;
@@ -110,7 +119,7 @@ namespace Microsoft.Extensions.Caching.Memory
         static Task<T> GetOrCreateUsingLockAsync<T>(IMemoryCache cache, MemoryCacheRegistration key, object tag, object[] values)
         {
             var rwLock = key._rwLock ?? _rwLock;
-            var name = key.GetNamespace(values);
+            var name = key.GetName(values);
             rwLock.EnterUpgradeableReadLock();
             var notCacheResult = typeof(T) != typeof(MemoryCacheResult);
             try
@@ -127,6 +136,16 @@ namespace Microsoft.Extensions.Caching.Memory
                         return Task.FromResult(notCacheResult && value is MemoryCacheResult cacheResult ? (T)cacheResult.Result : (T)value);
                     // create value
                     value = key.BuilderAsync != null ? Task.Run(() => CreateValueAsync<T>(key, tag, values)).GetAwaiter().GetResult() : CreateValue<T>(key, tag, values);
+                    if (value == MemoryCacheResult.CacheResult)
+                    {
+                        value = cache.Get(name);
+                        return value != null
+                            ? Task.FromResult(notCacheResult && value is MemoryCacheResult cacheResult ? (T)cacheResult.Result : (T)value)
+                            : default;
+                    }
+                    if (value == MemoryCacheResult.NoResult)
+                        return Task.FromResult(default(T));
+                    // cache value
                     var entryOptions = key.EntryOptions is MemoryCacheEntryOptions2 entryOptions2 ? entryOptions2.ToEntryOptions() : key.EntryOptions;
                     if (key.CacheTags != null)
                     {
@@ -134,6 +153,8 @@ namespace Microsoft.Extensions.Caching.Memory
                         if (tags != null && tags.Any())
                             ((List<IChangeToken>)entryOptions.ExpirationTokens).AddRange(MakeChangeTokens(cache, tag, tags));
                     }
+                    if (key.PostEvictionCallback != null)
+                        entryOptions.RegisterPostEvictionCallback(key.PostEvictionCallback, tag);
                     // add value
                     var valueAsResult = value is MemoryCacheResult result ? result : new MemoryCacheResult(value);
                     valueAsResult.WeakTag = new WeakReference(tag);
@@ -157,7 +178,7 @@ namespace Microsoft.Extensions.Caching.Memory
             {
                 if (!string.IsNullOrEmpty(value.ETag))
                 {
-                    var etagName = value.Key.GetNamespace(new[] { value.ETag });
+                    var etagName = value.Key.GetName(new[] { value.ETag });
                     // ensure base is still exists, then add
                     var baseValue = cache.Get(name);
                     if (baseValue != null)
