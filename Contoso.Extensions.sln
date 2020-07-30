@@ -25,6 +25,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Contoso.Extensions.FileSyst
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Contoso.Extensions.Caching.Http", "Contoso.Extensions.Caching.Http\Contoso.Extensions.Caching.Http.csproj", "{1058B425-C98B-49BF-A961-472005F68BB0}"
 EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Contoso.Extensions.Caching.MemoryStream", "Contoso.Extensions.Caching.MemoryStream\Contoso.Extensions.Caching.MemoryStream.csproj", "{D7672F88-50FE-41C1-882A-23B3480D13E4}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -75,6 +77,10 @@ Global
 		{1058B425-C98B-49BF-A961-472005F68BB0}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{1058B425-C98B-49BF-A961-472005F68BB0}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{1058B425-C98B-49BF-A961-472005F68BB0}.Release|Any CPU.Build.0 = Release|Any CPU
+		{D7672F88-50FE-41C1-882A-23B3480D13E4}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{D7672F88-50FE-41C1-882A-23B3480D13E4}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{D7672F88-50FE-41C1-882A-23B3480D13E4}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{D7672F88-50FE-41C1-882A-23B3480D13E4}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
