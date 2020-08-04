@@ -11,14 +11,14 @@ namespace System.Security
         /// <summary>
         /// Initializes a new instance of the <see cref="ParsedConnectionString"/> class.
         /// </summary>
-        /// <param name="value">The value.</param>
+        /// <param name="connectionString">The value.</param>
         /// <exception cref="InvalidOperationException">Unable to read credential store</exception>
-        public ParsedConnectionString(string value)
+        public ParsedConnectionString(string connectionString)
         {
-            if (string.IsNullOrEmpty(value))
+            if (string.IsNullOrEmpty(connectionString))
                 return;
             string serviceCredential = null, serviceLogin = null, servicePassword = null;
-            foreach (var param in value.Split(';'))
+            foreach (var param in connectionString.Split(';'))
             {
                 if (string.IsNullOrEmpty(param)) continue;
                 var kv = param.Split(new[] { '=' }, 2);
@@ -56,6 +56,6 @@ namespace System.Security
         /// <value>
         /// The parameters.
         /// </value>
-        public Dictionary<string, string> Params { get; } = new Dictionary<string, string>();
+        public Dictionary<string, string> Params { get; } = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
     }
 }

@@ -9,8 +9,8 @@ namespace Contoso.Extensions.Services
 {
     public interface IDbService
     {
-        IDbConnection GetConnection(string id = null);
-        IDbConnection GetAzureConnection(string id = null);
+        IDbConnection GetConnection(string name = null);
+        IDbConnection GetAzureConnection(string name = null);
     }
 
     public class DbService : IDbService
@@ -21,13 +21,13 @@ namespace Contoso.Extensions.Services
 
         public IDbConnection GetConnection(string name = null)
         {
-            var configuration = ConfigBase.Configuration ?? throw new InvalidOperationException("DbService.Configuration must be set before using GetConnection()");
+            var configuration = ConfigBase.Configuration ?? throw new InvalidOperationException("ConfigBase.Configuration must be set before using GetConnection()");
             return new SqlConnection(configuration.GetConnectionString(name ?? "Main"));
         }
 
         public IDbConnection GetAzureConnection(string name = null)
         {
-            var configuration = ConfigBase.Configuration ?? throw new InvalidOperationException("DbService.Configuration must be set before using GetConnection()");
+            var configuration = ConfigBase.Configuration ?? throw new InvalidOperationException("ConfigBase.Configuration must be set before using GetConnection()");
             return new SqlConnection(configuration.GetConnectionString(name ?? "Main"))
             {
                 AccessToken = new AzureServiceTokenProvider().GetAccessTokenAsync("https://database.windows.net/").Result

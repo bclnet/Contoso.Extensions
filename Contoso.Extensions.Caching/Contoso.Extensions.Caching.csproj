@@ -9,7 +9,7 @@
     <Authors>Contoso</Authors>
     <Product>Contoso.Extensions</Product>
     <Version>1.0.3</Version>
-    <Description>extensions to the Microsoft.Extensions.Caching namespace</Description>
+    <Description>Extensions to the Microsoft.Extensions.Caching namespace</Description>
   </PropertyGroup>
   <ItemGroup>
     <PackageReference Include="Microsoft.Extensions.Caching.Abstractions" Version="3.1.6" />
