@@ -1,4 +1,3 @@
-using Contoso.Extensions.Configuration;
 using Microsoft.Azure.Services.AppAuthentication;
 using Microsoft.Data.SqlClient;
 using Microsoft.Extensions.Configuration;
@@ -10,7 +9,6 @@ namespace Contoso.Extensions.Services
     public interface IDbService
     {
         IDbConnection GetConnection(string name = null);
-        IDbConnection GetAzureConnection(string name = null);
     }
 
     public class DbService : IDbService
@@ -22,16 +20,12 @@ namespace Contoso.Extensions.Services
         public IDbConnection GetConnection(string name = null)
         {
             var configuration = ConfigBase.Configuration ?? throw new InvalidOperationException("ConfigBase.Configuration must be set before using GetConnection()");
-            return new SqlConnection(configuration.GetConnectionString(name ?? "Main"));
-        }
-
-        public IDbConnection GetAzureConnection(string name = null)
-        {
-            var configuration = ConfigBase.Configuration ?? throw new InvalidOperationException("ConfigBase.Configuration must be set before using GetConnection()");
-            return new SqlConnection(configuration.GetConnectionString(name ?? "Main"))
-            {
-                AccessToken = new AzureServiceTokenProvider().GetAccessTokenAsync("https://database.windows.net/").Result
-            };
+            var conn = new SqlConnection(configuration.GetConnectionString(name ?? "Main"));
+            var connString = $";{conn.ConnectionString}".Replace(" ", "").ToLowerInvariant();
+            var hasCredential = connString.Contains(";userid=") || connString.Contains(";uid=") || connString.Contains(";password=") || connString.Contains(";pwd=");
+            if (!hasCredential && conn.DataSource.EndsWith("database.windows.net", StringComparison.OrdinalIgnoreCase))
+                conn.AccessToken = new AzureServiceTokenProvider().GetAccessTokenAsync("https://database.windows.net/").Result;
+            return conn;
         }
     }
 }

@@ -1,4 +1,3 @@
-using Contoso.Extensions.Configuration;
 using Contoso.Extensions.Data;
 using Microsoft.Extensions.Configuration;
 using System;
