@@ -22,11 +22,12 @@ namespace System.Security
             {
                 if (string.IsNullOrEmpty(param)) continue;
                 var kv = param.Split(new[] { '=' }, 2);
-                if (kv.Length > 1 && string.Equals(kv[0], "Credential", StringComparison.OrdinalIgnoreCase)) serviceCredential = kv[1];
-                else if (kv.Length > 1 && string.Equals(kv[0], "User Id", StringComparison.OrdinalIgnoreCase)) serviceLogin = kv[1];
-                else if (kv.Length > 1 && string.Equals(kv[0], "Password", StringComparison.OrdinalIgnoreCase)) servicePassword = kv[1];
-                else if (kv.Length > 1 && string.Equals(kv[0], "Server", StringComparison.OrdinalIgnoreCase)) Server = kv[1];
-                else Params.Add(kv[0].ToLowerInvariant(), kv.Length > 1 ? kv[1] : null);
+                var key = kv[0]?.Replace(" ", "").ToLowerInvariant();
+                if (kv.Length > 1 && key == "credential") serviceCredential = kv[1];
+                else if (kv.Length > 1 && (key == "userid" || key == "uid")) serviceLogin = kv[1];
+                else if (kv.Length > 1 && (key == "password" || key == "pwd")) servicePassword = kv[1];
+                else if (kv.Length > 1 && (key == "server" || key == "datasource")) Server = kv[1];
+                else Params.Add(key, kv.Length > 1 ? kv[1] : null);
             }
             if (string.IsNullOrEmpty(serviceCredential)) Credential = new NetworkCredential { UserName = serviceLogin, Password = servicePassword };
             else if (CredentialManager.TryRead(serviceCredential, CredentialManager.CredentialType.GENERIC, out var credential) != 0)

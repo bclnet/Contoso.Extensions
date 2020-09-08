@@ -7,14 +7,42 @@ using System.Text;
 
 namespace Contoso.Extensions.Data
 {
+    /// <summary>
+    /// IEmailConnection
+    /// </summary>
     public interface IEmailConnection
     {
+        /// <summary>
+        /// Sends the email.
+        /// </summary>
+        /// <param name="subject">The subject.</param>
+        /// <param name="exception">The exception.</param>
+        /// <param name="func">The function.</param>
+        /// <param name="toEmail">To email.</param>
+        /// <param name="fromEmail">From email.</param>
         void SendEmail(string subject, Exception exception, Action<MailMessage> func = null, string toEmail = null, string fromEmail = null);
+        /// <summary>
+        /// Sends the email.
+        /// </summary>
+        /// <param name="subject">The subject.</param>
+        /// <param name="message">The message.</param>
+        /// <param name="func">The function.</param>
+        /// <param name="toEmail">To email.</param>
+        /// <param name="fromEmail">From email.</param>
         void SendEmail(string subject, string message, Action<MailMessage> func = null, string toEmail = null, string fromEmail = null);
     }
 
+    /// <summary>
+    /// EmailConnection
+    /// </summary>
+    /// <seealso cref="Contoso.Extensions.Data.IEmailConnection" />
     public class EmailConnection : IEmailConnection
     {
+        /// <summary>
+        /// Initializes a new instance of the <see cref="EmailConnection"/> class.
+        /// </summary>
+        /// <param name="connectionString">The connection string.</param>
+        /// <exception cref="InvalidOperationException">Unable to read credential store</exception>
         public EmailConnection(string connectionString = null)
         {
             if (string.IsNullOrEmpty(connectionString))
@@ -24,15 +52,16 @@ namespace Contoso.Extensions.Data
             {
                 if (string.IsNullOrEmpty(param)) continue;
                 var kv = param.Split(new[] { '=' }, 2);
-                if (kv.Length > 1 && string.Equals(kv[0], "Credential", StringComparison.OrdinalIgnoreCase)) serviceCredential = kv[1];
-                else if (kv.Length > 1 && string.Equals(kv[0], "User Id", StringComparison.OrdinalIgnoreCase)) serviceLogin = kv[1];
-                else if (kv.Length > 1 && string.Equals(kv[0], "Password", StringComparison.OrdinalIgnoreCase)) servicePassword = kv[1];
-                else if (kv.Length > 1 && string.Equals(kv[0], "Server", StringComparison.OrdinalIgnoreCase)) Server = kv[1];
-                else if (kv.Length > 1 && string.Equals(kv[0], "PickupDirectory", StringComparison.OrdinalIgnoreCase)) PickupDirectory = kv[1];
-                else if (kv.Length > 1 && string.Equals(kv[0], "ToEmail", StringComparison.OrdinalIgnoreCase)) ToEmail = kv[1];
-                else if (kv.Length > 1 && string.Equals(kv[0], "FromEmail", StringComparison.OrdinalIgnoreCase)) FromEmail = kv[1];
-                else if (kv.Length > 1 && string.Equals(kv[0], "Subject", StringComparison.OrdinalIgnoreCase)) Subject = kv[1];
-                else Params.Add(kv[0].ToLowerInvariant(), kv.Length > 1 ? kv[1] : null);
+                var key = kv[0]?.Replace(" ", "").ToLowerInvariant();
+                if (kv.Length > 1 && key == "credential") serviceCredential = kv[1];
+                else if (kv.Length > 1 && (key == "userid" || key == "uid")) serviceLogin = kv[1];
+                else if (kv.Length > 1 && (key == "password" || key == "pwd")) servicePassword = kv[1];
+                else if (kv.Length > 1 && (key == "server" || key == "datasource")) Server = kv[1];
+                else if (kv.Length > 1 && key == "pickupdirectory") PickupDirectory = kv[1];
+                else if (kv.Length > 1 && key == "toemail") ToEmail = kv[1];
+                else if (kv.Length > 1 && key == "fromemail") FromEmail = kv[1];
+                else if (kv.Length > 1 && key == "subject") Subject = kv[1];
+                else Params.Add(key, kv.Length > 1 ? kv[1] : null);
             }
             if (string.IsNullOrEmpty(serviceCredential)) Credential = new NetworkCredential { UserName = serviceLogin, Password = servicePassword };
             else if (CredentialManager.TryRead(serviceCredential, CredentialManager.CredentialType.GENERIC, out var credential) != 0)

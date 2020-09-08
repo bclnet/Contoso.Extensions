@@ -8,7 +8,7 @@ namespace Contoso.Extensions.Services
 {
     public interface IDbService
     {
-        IDbConnection GetConnection(string name = null);
+        IDbConnection GetConnection(string name = null, bool skipAzure = false);
     }
 
     public class DbService : IDbService
@@ -17,10 +17,12 @@ namespace Contoso.Extensions.Services
         public static int LongCommandTimeout => 360;
         public static int VeryLongCommandTimeout => 3600;
 
-        public IDbConnection GetConnection(string name = null)
+        public IDbConnection GetConnection(string name = null, bool skipAzure = false)
         {
             var configuration = ConfigBase.Configuration ?? throw new InvalidOperationException("ConfigBase.Configuration must be set before using GetConnection()");
             var conn = new SqlConnection(configuration.GetConnectionString(name ?? "Main"));
+            if (skipAzure)
+                return conn;
             var connString = $";{conn.ConnectionString}".Replace(" ", "").ToLowerInvariant();
             var hasCredential = connString.Contains(";userid=") || connString.Contains(";uid=") || connString.Contains(";password=") || connString.Contains(";pwd=");
             if (!hasCredential && conn.DataSource.EndsWith("database.windows.net", StringComparison.OrdinalIgnoreCase))
