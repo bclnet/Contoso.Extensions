@@ -9,21 +9,15 @@ namespace System.Net.Http
 {
     public class HttpCachedClient : HttpClient
     {
-        readonly IStreamCache _cache;
+        public HttpCachedClient(IStreamCache cache) : base() => Cache = cache ?? throw new ArgumentNullException(nameof(cache));
+        public HttpCachedClient(IStreamCache cache, HttpMessageHandler handler) : base(handler) => Cache = cache ?? throw new ArgumentNullException(nameof(cache));
+        public HttpCachedClient(IStreamCache cache, HttpMessageHandler handler, bool disposeHandler) : base(handler, disposeHandler) => Cache = cache ?? throw new ArgumentNullException(nameof(cache));
 
-        public HttpCachedClient(IStreamCache cache)
-        {
-            if (cache == null)
-                throw new ArgumentNullException(nameof(cache));
-
-            _cache = cache;
-        }
-
-        public IStreamCache Cache => _cache;
+        public IStreamCache Cache { get; }
 
         // SENDASYNC
         static bool CanCache(HttpRequestMessage request) => request.Method == HttpMethod.Get;
-        
+
         public override Task<HttpResponseMessage> SendAsync(HttpRequestMessage request, CancellationToken cancellationToken) => CanCache(request)
             ? WrappedSendAsync(base.SendAsync(request, cancellationToken), request, cancellationToken)
             : base.SendAsync(request, cancellationToken);
@@ -48,12 +42,12 @@ namespace System.Net.Http
         async Task SetCachedResponseAsync(string key, HttpResponseMessage response, CancellationToken cancellationToken)
         {
             var value = await HttpSerDes.SerializeResponseMessageAsync(response);
-            await _cache.SetAsync(key, value, cancellationToken);
+            await Cache.SetAsync(key, value, cancellationToken);
         }
 
         async Task<HttpResponseMessage> GetCachedResponseAsync(string key, HttpRequestMessage request, CancellationToken cancellationToken)
         {
-            var item = await _cache.GetAsync(key, cancellationToken);
+            var item = await Cache.GetAsync(key, cancellationToken);
             if (item == null)
                 return null;
             if (!(item is StreamWithHeader value))
