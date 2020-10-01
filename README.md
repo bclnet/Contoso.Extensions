@@ -10,7 +10,7 @@ Contoso Extensions is an open-source, cross-platform set of APIs for commonly us
 The following list identifies all the packages we currently ship from [bclnet/Contoso.Extensions](https://github.com/bclnet/Contoso.Extensions).
 
 * **Primary**
-    * [`Contoso.Extension`](https://nuget.org/packages/Contoso.Extension) ([documentation](Contoso.Extensions.md)) - extensions to the System namespace
+    * [`Contoso.Extensions`](https://nuget.org/packages/Contoso.Extensions) ([documentation](Contoso.Extensions.md)) - extensions to the System namespace
     * [`Contoso.Extensions.Data`](https://nuget.org/packages/Contoso.Extensions.Data) ([documentation](Contoso.Extensions.Data.md)) - abstract configuration and a DbService
 
 * **Caching** - extensions to the Microsoft.Extensions.Caching namespace
