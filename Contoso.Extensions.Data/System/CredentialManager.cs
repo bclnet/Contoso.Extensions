@@ -4,14 +4,10 @@ using System.Runtime.InteropServices;
 
 namespace System.Security
 {
-    /// <summary>
-    /// CredentialManager
-    /// </summary>
     internal static class CredentialManager
     {
         #region Preamble
 
-        // DllImport derives from System.Runtime.InteropServices
         [DllImport("Advapi32.dll", SetLastError = true, EntryPoint = "CredDeleteW", CharSet = CharSet.Unicode)]
         static extern bool CredDeleteW([In] string target, [In] CredentialType type, [In] int reservedFlag);
 
@@ -31,168 +27,57 @@ namespace System.Security
 
         #region Fields
 
-        /// <summary>
-        /// CredentialFlags
-        /// </summary>
         [Flags]
         public enum CredentialFlags : uint
         {
-            /// <summary>
-            /// The none
-            /// </summary>
             NONE = 0x0,
-            /// <summary>
-            /// The promp t_ now
-            /// </summary>
             PROMPT_NOW = 0x2,
-            /// <summary>
-            /// The usernam e_ target
-            /// </summary>
             USERNAME_TARGET = 0x4
         }
 
-        /// <summary>
-        /// CredentialErrors
-        /// </summary>
         public enum CredentialErrors : uint
         {
-            /// <summary>
-            /// The erro r_ success
-            /// </summary>
             ERROR_SUCCESS = 0x0,
-            /// <summary>
-            /// The erro r_ invali d_ parameter
-            /// </summary>
             ERROR_INVALID_PARAMETER = 0x80070057,
-            /// <summary>
-            /// The erro r_ invali d_ flags
-            /// </summary>
             ERROR_INVALID_FLAGS = 0x800703EC,
-            /// <summary>
-            /// The erro r_ no t_ found
-            /// </summary>
             ERROR_NOT_FOUND = 0x80070490,
-            /// <summary>
-            /// The erro r_ n o_ suc h_ logo n_ session
-            /// </summary>
             ERROR_NO_SUCH_LOGON_SESSION = 0x80070520,
-            /// <summary>
-            /// The erro r_ ba d_ username
-            /// </summary>
             ERROR_BAD_USERNAME = 0x8007089A
         }
 
-        /// <summary>
-        /// CredentialPersist
-        /// </summary>
         public enum CredentialPersist : uint
         {
-            /// <summary>
-            /// The session
-            /// </summary>
             SESSION = 1,
-            /// <summary>
-            /// The loca l_ machine
-            /// </summary>
             LOCAL_MACHINE = 2,
-            /// <summary>
-            /// The enterprise
-            /// </summary>
             ENTERPRISE = 3
         }
 
-        /// <summary>
-        /// CredentialType
-        /// </summary>
         public enum CredentialType : uint
         {
-            /// <summary>
-            /// The generic
-            /// </summary>
             GENERIC = 1,
-            /// <summary>
-            /// The domai n_ password
-            /// </summary>
             DOMAIN_PASSWORD = 2,
-            /// <summary>
-            /// The domai n_ certificate
-            /// </summary>
             DOMAIN_CERTIFICATE = 3,
-            /// <summary>
-            /// The domai n_ visibl e_ password
-            /// </summary>
             DOMAIN_VISIBLE_PASSWORD = 4,
-            /// <summary>
-            /// The generi c_ certificate
-            /// </summary>
             GENERIC_CERTIFICATE = 5,
-            /// <summary>
-            /// The domai n_ extended
-            /// </summary>
             DOMAIN_EXTENDED = 6,
-            /// <summary>
-            /// The maximum
-            /// </summary>
-            MAXIMUM = 7, // Maximum supported cred type
-            /// <summary>
-            /// The maximu m_ ex
-            /// </summary>
-            MAXIMUM_EX = MAXIMUM + 1000, // Allow new applications to run on old OSes
+            MAXIMUM = 7,
+            MAXIMUM_EX = MAXIMUM + 1000,
         }
 
-        /// <summary>
-        /// Credential
-        /// </summary>
         [StructLayout(LayoutKind.Sequential, CharSet = CharSet.Unicode)]
         public struct Credential
         {
-            /// <summary>
-            /// The flags
-            /// </summary>
             public CredentialFlags Flags;
-            /// <summary>
-            /// The type
-            /// </summary>
             public CredentialType Type;
-            /// <summary>
-            /// The target name
-            /// </summary>
             public string TargetName;
-            /// <summary>
-            /// The comment
-            /// </summary>
             public string Comment;
-            /// <summary>
-            /// The last written
-            /// </summary>
             public DateTime LastWritten;
-            /// <summary>
-            /// The credential BLOB size
-            /// </summary>
-            public UInt32 CredentialBlobSize;
-            /// <summary>
-            /// The credential BLOB
-            /// </summary>
+            public uint CredentialBlobSize;
             public string CredentialBlob;
-            /// <summary>
-            /// The persist
-            /// </summary>
             public CredentialPersist Persist;
-            /// <summary>
-            /// The attribute count
-            /// </summary>
-            public UInt32 AttributeCount;
-            /// <summary>
-            /// The attributes
-            /// </summary>
+            public uint AttributeCount;
             public IntPtr Attributes;
-            /// <summary>
-            /// The target alias
-            /// </summary>
             public string TargetAlias;
-            /// <summary>
-            /// The user name
-            /// </summary>
             public string UserName;
         }
 
@@ -204,10 +89,10 @@ namespace System.Security
             public IntPtr TargetName;
             public IntPtr Comment;
             public Runtime.InteropServices.ComTypes.FILETIME LastWritten;
-            public UInt32 CredentialBlobSize;
+            public uint CredentialBlobSize;
             public IntPtr CredentialBlob;
-            public UInt32 Persist;
-            public UInt32 AttributeCount;
+            public uint Persist;
+            public uint AttributeCount;
             public IntPtr Attributes;
             public IntPtr TargetAlias;
             public IntPtr UserName;
@@ -220,8 +105,8 @@ namespace System.Security
             Credential XlateNativeCred(IntPtr credentialPtr)
             {
                 var native = (NativeCredential)Marshal.PtrToStructure(credentialPtr, typeof(NativeCredential));
-                var lastWritten = native.LastWritten.dwHighDateTime;
-                lastWritten = (lastWritten << 32) + native.LastWritten.dwLowDateTime;
+                //var lastWritten = native.LastWritten.dwHighDateTime;
+                //lastWritten = (lastWritten << 32) + native.LastWritten.dwLowDateTime;
                 return new Credential
                 {
                     Type = native.Type,
@@ -266,20 +151,8 @@ namespace System.Security
 
         #endregion
 
-        /// <summary>
-        /// Deletes the specified target.
-        /// </summary>
-        /// <param name="target">The target.</param>
-        /// <param name="type">The type.</param>
-        /// <returns></returns>
         public static int Delete(string target, CredentialType type) => !CredDeleteW(target, type, 0) ? Marshal.GetHRForLastWin32Error() : 0;
 
-        /// <summary>
-        /// Queries the specified filter.
-        /// </summary>
-        /// <param name="filter">The filter.</param>
-        /// <param name="credentials">The credentials.</param>
-        /// <returns></returns>
         public static int Query(string filter, out Credential[] credentials)
         {
             var flags = 0x0;
@@ -299,13 +172,6 @@ namespace System.Security
             return 0;
         }
 
-        /// <summary>
-        /// Reads the specified target.
-        /// </summary>
-        /// <param name="target">The target.</param>
-        /// <param name="type">The type.</param>
-        /// <param name="credential">The credential.</param>
-        /// <returns></returns>
         public static int TryRead(string target, CredentialType type, out Credential credential)
         {
             if (!CredReadW(target, type, 0, out var credentialPtr))
@@ -318,19 +184,8 @@ namespace System.Security
             return 0;
         }
 
-        /// <summary>
-        /// Writes the specified user credential.
-        /// </summary>
-        /// <param name="credential">The user credential.</param>
-        /// <returns></returns>
         public static int Write(Credential credential) => !CredWriteW(ref credential, 0) ? Marshal.GetHRForLastWin32Error() : 0;
 
-        /// <summary>
-        /// Reads the generic.
-        /// </summary>
-        /// <param name="target">The target.</param>
-        /// <returns>Credential.</returns>
-        /// <exception cref="System.InvalidOperationException">Unable to read credential store</exception>
         public static NetworkCredential ReadGeneric(string target)
         {
             if (TryRead(target, CredentialType.GENERIC, out var credential) != 0)

@@ -29,7 +29,7 @@ namespace Contoso.Extensions.Services
                 throw new ArgumentNullException(nameof(server));
             if (credential == null)
                 throw new ArgumentNullException(nameof(credential));
-            var fileName = string.IsNullOrEmpty(filePath) ? filePath : Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.UserProfile), ".ssh/id_rsa");
+            var fileName = !string.IsNullOrEmpty(filePath) ? filePath : Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.UserProfile), ".ssh/id_rsa");
             return new ScpClient(server, credential.UserName, new PrivateKeyFile(fileName, credential.Password));
         }
 

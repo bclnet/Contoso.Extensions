@@ -2,16 +2,18 @@
 
 namespace System.Globalization
 {
+    /// <summary>
+    /// Provides basic grammatological methods
+    /// </summary>
     public static class Grammar
     {
         /// <summary>
-        /// Get all Vowels
+        /// The vowels
         /// </summary>
-        /// <returns>all vowels char</returns>
         public static readonly char[] Vowels = { 'a', 'e', 'i', 'o', 'u' };
 
         /// <summary>
-        /// Adds was were based on <paramref name="number"/> to string <paramref name="stringToAppend"/>
+        /// Adds was/were based on <paramref name="number"/> to string <paramref name="stringToAppend"/>
         /// </summary>
         /// <paramref name="number"/>Number in string format. Must be zero or positive
         /// If equals 0 add "none were" + <paramref name="stringToAppend"/>
@@ -23,7 +25,7 @@ namespace System.Globalization
             ? $"{number}{(number == 1 ? " was" : " were")}{(stringToAppend != null ? " " + stringToAppend : string.Empty)}"
             : $"none were {(stringToAppend != null ? " " + stringToAppend : string.Empty)}";
         /// <summary>
-        /// Adds was were based on <paramref name="number"/> to string <paramref name="stringToAppend"/>
+        /// Adds was/were based on <paramref name="number"/> to string <paramref name="stringToAppend"/>
         /// </summary>
         /// <paramref name="number"/>Number in string format. Must be zero or positive
         /// If equals 0 add "none were" + <paramref name="stringToAppend"/>
@@ -35,29 +37,46 @@ namespace System.Globalization
             ? $"{number}{(number == "1" ? " was" : " were")}{(stringToAppend != null ? " " + stringToAppend : string.Empty)}"
             : $"none were {(stringToAppend != null ? " " + stringToAppend : string.Empty)}";
 
-        static string Pluralize(int number, string stringToAppend) => number == 1 ? stringToAppend ?? string.Empty : (stringToAppend ?? string.Empty) + "s";
-        static string Pluralize(string number, string stringToAppend) => number == "1" ? stringToAppend ?? string.Empty : (stringToAppend ?? string.Empty) + "s";
+        /// <summary>
+        /// Makes a string plural by adding "s" to it if <paramref name="number"/> is greater than one
+        /// </summary>
+        /// <returns>pluralized string</returns>
+        public static string Pluralize(int number, string stringToAppend) => number == 1 ? stringToAppend ?? string.Empty : (stringToAppend ?? string.Empty) + "s";
+        /// <summary>
+        /// Makes a string plural by adding "s" to it if <paramref name="number"/> is greater than one
+        /// </summary>
+        /// <returns>pluralized string</returns>
+        public static string Pluralize(string number, string stringToAppend) => number == "1" ? stringToAppend ?? string.Empty : (stringToAppend ?? string.Empty) + "s";
 
         /// <summary>
-        /// Makes the string passed in possesive by adding 's to it
-        /// if string doesn't ends with "s".
+        /// Makes a string possesive by adding "'s" to it if the string does not end with "s"
         /// </summary>
         /// <paramref name="makePossesive"/>
         /// <returns>possesive string</returns>
         public static string Possesive(string makePossesive) => makePossesive.ToLowerInvariant().EndsWith("s") ? makePossesive : makePossesive + "'s";
 
         /// <summary>
-        /// Converts the string gender to "he"/"she" or "other" based on passed in string
+        /// Returns he/she or they based on <paramref name="gender"/>
         /// </summary>
         /// <paramref name="gender"/>
         /// If gender equals male returns "he has". 
         /// If gender equals female returns "she has".
         /// else returns "they have".
         /// <returns>string gender</returns>
-        public static string HeShe(string gender) => !string.IsNullOrEmpty(gender) && gender.ToLowerInvariant() == "female" ? "she has" : gender?.ToLowerInvariant() == "male" ? "he has" : "they have";
+        public static string HeShe(string gender) => !string.IsNullOrEmpty(gender) && gender.ToLowerInvariant() == "female" ? "she" : gender?.ToLowerInvariant() == "male" ? "he" : "they";
 
         /// <summary>
-        ///  Converts the string gender to "him" or "her" or "zim" based on passed in gender
+        /// Returns he/she or they have based on <paramref name="gender"/>
+        /// </summary>
+        /// <paramref name="gender"/>
+        /// If gender equals male returns "he has". 
+        /// If gender equals female returns "she has".
+        /// else returns "they have".
+        /// <returns>string gender</returns>
+        public static string HeSheHas(string gender) => !string.IsNullOrEmpty(gender) && gender.ToLowerInvariant() == "female" ? "she has" : gender?.ToLowerInvariant() == "male" ? "he has" : "they have";
+
+        /// <summary>
+        /// Returns him/her or them based on <paramref name="gender"/>
         /// </summary>
         /// <paramref name="gender"/>
         /// If gender equals male returns "him". 
@@ -65,6 +84,16 @@ namespace System.Globalization
         /// else returns "them".
         /// <returns>him/her/them</returns>
         public static string HimHer(string gender) => !string.IsNullOrEmpty(gender) && gender.ToLowerInvariant() == "female" ? "her" : gender?.ToLowerInvariant() == "male" ? "him" : "them";
+
+        /// <summary>
+        /// Returns his/hers or theirs based on <paramref name="gender"/>
+        /// </summary>
+        /// <paramref name="gender"/>
+        /// If gender equals male returns "his". 
+        /// If gender equals female returns "hers".
+        /// else returns "they have".
+        /// <returns>string gender</returns>
+        public static string HisHers(string gender) => !string.IsNullOrEmpty(gender) && gender.ToLowerInvariant() == "female" ? "hers" : gender?.ToLowerInvariant() == "male" ? "his" : "theirs";
 
         /// <summary>
         /// Returns the number and makes string <paramref name="stringToAppend"/> based on <paramref name="number"/>
@@ -96,9 +125,18 @@ namespace System.Globalization
             var firstCharacter = !string.IsNullOrEmpty(stringToAppend) ? stringToAppend.ToLowerInvariant()[0] : 0;
             return number == 1 ? Vowels.Any(x => x == firstCharacter) ? "an" + (stringToAppend != null ? " " + stringToAppend : "") : "a" + (stringToAppend != null ? " " + stringToAppend : "") : number + (stringToAppend != null ? " " + Pluralize(number, stringToAppend) : "");
         }
+        /// <summary>
+        /// Converts the <paramref name="stringToAppend"/> to plural
+        /// if <paramref name="number"/> is 1 and <paramref name="number"/> starts with a vowel returns "an" else "a"
+        /// if <paramref name="number"/> is greater than 1 makes <paramref name="stringToAppend"/> plural
+        /// </summary>
+        /// <paramref name="number"/>Number in string format. Must be zero or positive
+        /// <paramref name="stringToAppend"/>String to be plural.
+        /// <returns>string number/a/an and pluraled string</returns>
+        public static string PluralizePhraseWithArticles(string number, string stringToAppend) => PluralizePhraseWithArticles(int.Parse(number), stringToAppend);
 
         /// <summary>
-        /// Converts the string number to its nth form
+        /// Returns to its nth form based on <paramref name="number"/>
         /// </summary>
         /// <paramref name="number" />Number in string format. Must be zero or positive
         /// If equals 0 returns 0th
@@ -107,7 +145,6 @@ namespace System.Globalization
         /// If 3 returns 3rd
         /// Else returns number+th
         /// <returns>string Nth number</returns>
-        
         public static string Nth(int number)
         {
             if (number > 3 && number < 21) return number + "th";
@@ -120,11 +157,16 @@ namespace System.Globalization
                 default: return number + "th";
             };
         }
-
-        //public static string WasWere(string number, string stringToAppend) => WasWere(int.Parse(number), stringToAppend);
-        //public static string Pluralize(string number, string stringToAppend) => Pluralize(int.Parse(number), stringToAppend);
-        //public static string PluralizePhrase(string number, string stringToAppend) => PluralizePhrase(int.Parse(number), stringToAppend);
-        //public static string PluralizePhraseWithArticles(string number, string stringToAppend) => PluralizePhraseWithArticles(int.Parse(number), stringToAppend);
-        //public static string Nth(string number) => Nth(int.Parse(number));
+        /// <summary>
+        /// Returns to its nth form based on <paramref name="number"/>
+        /// </summary>
+        /// <paramref name="number" />Number in string format. Must be zero or positive
+        /// If equals 0 returns 0th
+        /// If 1 returns 1st
+        /// If 2 returns 2nd
+        /// If 3 returns 3rd
+        /// Else returns number+th
+        /// <returns>string Nth number</returns>
+        public static string Nth(string number) => Nth(int.Parse(number));
     }
 }

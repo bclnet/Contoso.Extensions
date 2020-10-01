@@ -31,6 +31,7 @@ namespace System.Linq
     /// </summary>
     public static class LinqPagedMetadataProviders
     {
+        static readonly LinqPagedMetadataProvider Default = new DefaultLinqPagedMetadataProvider();
         static LinqPagedMetadataProvider _current = new DefaultLinqPagedMetadataProvider();
 
         /// <summary>
@@ -42,7 +43,7 @@ namespace System.Linq
         public static LinqPagedMetadataProvider Current
         {
             get => _current;
-            set => _current = value ?? new DefaultLinqPagedMetadataProvider();
+            set => _current = value ?? Default;
         }
     }
 }

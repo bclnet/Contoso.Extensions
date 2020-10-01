@@ -30,7 +30,7 @@ using System.ComponentModel;
 namespace System
 {
     /// <summary>
-    /// Class Nameable.
+    /// Represents a value type that can be assigned a name.
     /// </summary>
     public static class Nameable
     {
@@ -62,7 +62,7 @@ namespace System
     }
 
     /// <summary>
-    /// Struct Nameable
+    /// Represents a value type that can be assigned a name.
     /// </summary>
     /// <typeparam name="T"></typeparam>
     [TypeConverter(typeof(NameableConverter)), JsonObject(MemberSerialization.OptIn)]

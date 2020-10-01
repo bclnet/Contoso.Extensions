@@ -11,7 +11,6 @@ namespace System.Security
     {
         #region Preamble
 
-        // DllImport derives from System.Runtime.InteropServices
         [DllImport("Advapi32.dll", SetLastError = true, EntryPoint = "CredDeleteW", CharSet = CharSet.Unicode)]
         static extern bool CredDeleteW([In] string target, [In] CredentialType type, [In] int reservedFlag);
 
@@ -42,11 +41,11 @@ namespace System.Security
             /// </summary>
             NONE = 0x0,
             /// <summary>
-            /// The promp t_ now
+            /// The prompt now
             /// </summary>
             PROMPT_NOW = 0x2,
             /// <summary>
-            /// The usernam e_ target
+            /// The username target
             /// </summary>
             USERNAME_TARGET = 0x4
         }
@@ -57,27 +56,27 @@ namespace System.Security
         public enum CredentialErrors : uint
         {
             /// <summary>
-            /// The erro r_ success
+            /// The error success
             /// </summary>
             ERROR_SUCCESS = 0x0,
             /// <summary>
-            /// The erro r_ invali d_ parameter
+            /// The error invali d_ parameter
             /// </summary>
             ERROR_INVALID_PARAMETER = 0x80070057,
             /// <summary>
-            /// The erro r_ invali d_ flags
+            /// The error invali d_ flags
             /// </summary>
             ERROR_INVALID_FLAGS = 0x800703EC,
             /// <summary>
-            /// The erro r_ no t_ found
+            /// The error not found
             /// </summary>
             ERROR_NOT_FOUND = 0x80070490,
             /// <summary>
-            /// The erro r_ n o_ suc h_ logo n_ session
+            /// The error no such logon session
             /// </summary>
             ERROR_NO_SUCH_LOGON_SESSION = 0x80070520,
             /// <summary>
-            /// The erro r_ ba d_ username
+            /// The error bad username
             /// </summary>
             ERROR_BAD_USERNAME = 0x8007089A
         }
@@ -92,7 +91,7 @@ namespace System.Security
             /// </summary>
             SESSION = 1,
             /// <summary>
-            /// The loca l_ machine
+            /// The local machine
             /// </summary>
             LOCAL_MACHINE = 2,
             /// <summary>
@@ -111,23 +110,23 @@ namespace System.Security
             /// </summary>
             GENERIC = 1,
             /// <summary>
-            /// The domai n_ password
+            /// The domain password
             /// </summary>
             DOMAIN_PASSWORD = 2,
             /// <summary>
-            /// The domai n_ certificate
+            /// The domain certificate
             /// </summary>
             DOMAIN_CERTIFICATE = 3,
             /// <summary>
-            /// The domai n_ visibl e_ password
+            /// The domain visible password
             /// </summary>
             DOMAIN_VISIBLE_PASSWORD = 4,
             /// <summary>
-            /// The generi c_ certificate
+            /// The generic certificate
             /// </summary>
             GENERIC_CERTIFICATE = 5,
             /// <summary>
-            /// The domai n_ extended
+            /// The domain extended
             /// </summary>
             DOMAIN_EXTENDED = 6,
             /// <summary>
@@ -169,7 +168,7 @@ namespace System.Security
             /// <summary>
             /// The credential BLOB size
             /// </summary>
-            public UInt32 CredentialBlobSize;
+            public uint CredentialBlobSize;
             /// <summary>
             /// The credential BLOB
             /// </summary>
@@ -181,7 +180,7 @@ namespace System.Security
             /// <summary>
             /// The attribute count
             /// </summary>
-            public UInt32 AttributeCount;
+            public uint AttributeCount;
             /// <summary>
             /// The attributes
             /// </summary>
@@ -204,10 +203,10 @@ namespace System.Security
             public IntPtr TargetName;
             public IntPtr Comment;
             public Runtime.InteropServices.ComTypes.FILETIME LastWritten;
-            public UInt32 CredentialBlobSize;
+            public uint CredentialBlobSize;
             public IntPtr CredentialBlob;
-            public UInt32 Persist;
-            public UInt32 AttributeCount;
+            public uint Persist;
+            public uint AttributeCount;
             public IntPtr Attributes;
             public IntPtr TargetAlias;
             public IntPtr UserName;
@@ -220,8 +219,8 @@ namespace System.Security
             Credential XlateNativeCred(IntPtr credentialPtr)
             {
                 var native = (NativeCredential)Marshal.PtrToStructure(credentialPtr, typeof(NativeCredential));
-                var lastWritten = native.LastWritten.dwHighDateTime;
-                lastWritten = (lastWritten << 32) + native.LastWritten.dwLowDateTime;
+                //var lastWritten = native.LastWritten.dwHighDateTime;
+                //lastWritten = (lastWritten << 32) + native.LastWritten.dwLowDateTime;
                 return new Credential
                 {
                     Type = native.Type,
@@ -300,7 +299,7 @@ namespace System.Security
         }
 
         /// <summary>
-        /// Reads the specified target.
+        /// Tries to read the specified target.
         /// </summary>
         /// <param name="target">The target.</param>
         /// <param name="type">The type.</param>
@@ -326,7 +325,7 @@ namespace System.Security
         public static int Write(Credential credential) => !CredWriteW(ref credential, 0) ? Marshal.GetHRForLastWin32Error() : 0;
 
         /// <summary>
-        /// Reads the generic.
+        /// Reads a generic credential (default).
         /// </summary>
         /// <param name="target">The target.</param>
         /// <returns>Credential.</returns>

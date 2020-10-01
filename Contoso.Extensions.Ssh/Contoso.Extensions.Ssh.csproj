@@ -8,7 +8,7 @@
     <Product>Contoso.Extensions</Product>
     <Company>Contoso</Company>
     <Authors>Contoso</Authors>
-    <Version>1.0.6</Version>
+    <Version>1.0.0</Version>
     <Description>Abstract configuration and a Data Services</Description>
   </PropertyGroup>
   <ItemGroup>
