@@ -9,6 +9,7 @@ namespace Contoso.Extensions.Services
     public interface IDbService
     {
         IDbConnection GetConnection(string name = null, bool skipAzure = false);
+        string GetConnectionString(string name = null, bool skipAzure = false);
     }
 
     public class DbService : IDbService
@@ -23,11 +24,24 @@ namespace Contoso.Extensions.Services
             var conn = new SqlConnection(configuration.GetConnectionString(name ?? "Main"));
             if (skipAzure)
                 return conn;
-            var connString = $";{conn.ConnectionString}".Replace(" ", "").ToLowerInvariant();
-            var hasCredential = connString.Contains(";userid=") || connString.Contains(";uid=") || connString.Contains(";password=") || connString.Contains(";pwd=");
+            var connSearch = $";{conn.ConnectionString}".Replace(" ", "").ToLowerInvariant();
+            var hasCredential = connSearch.Contains(";userid=") || connSearch.Contains(";uid=") || connSearch.Contains(";password=") || connSearch.Contains(";pwd=");
             if (!hasCredential && conn.DataSource.EndsWith("database.windows.net", StringComparison.OrdinalIgnoreCase))
                 conn.AccessToken = new AzureServiceTokenProvider().GetAccessTokenAsync("https://database.windows.net/").Result;
             return conn;
+        }
+
+        public string GetConnectionString(string name = null, bool skipAzure = false)
+        {
+            var configuration = ConfigBase.Configuration ?? throw new InvalidOperationException("ConfigBase.Configuration must be set before using GetConnection()");
+            var connString = configuration.GetConnectionString(name ?? "Main");
+            if (skipAzure)
+                return connString;
+            var connSearch = $";{connString}".Replace(" ", "").ToLowerInvariant();
+            var hasCredential = connSearch.Contains(";userid=") || connSearch.Contains(";uid=") || connSearch.Contains(";password=") || connSearch.Contains(";pwd=");
+            return !hasCredential && connSearch.Contains("database.windows.net")
+                ? $"{connString};Access Token={new AzureServiceTokenProvider().GetAccessTokenAsync("https://database.windows.net/").Result}"
+                : connString;
         }
     }
 }

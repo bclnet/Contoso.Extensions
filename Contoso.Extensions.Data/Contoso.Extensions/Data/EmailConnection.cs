@@ -63,10 +63,9 @@ namespace Contoso.Extensions.Data
                 else if (kv.Length > 1 && key == "subject") Subject = kv[1];
                 else Params.Add(key, kv.Length > 1 ? kv[1] : null);
             }
-            if (string.IsNullOrEmpty(serviceCredential)) Credential = new NetworkCredential { UserName = serviceLogin, Password = servicePassword };
-            else if (CredentialManager.TryRead(serviceCredential, CredentialManager.CredentialType.GENERIC, out var credential) != 0)
-                throw new InvalidOperationException("Unable to read credential store");
-            else Credential = new NetworkCredential { UserName = credential.UserName, Password = credential.CredentialBlob };
+            Credential = string.IsNullOrEmpty(serviceCredential) ? new NetworkCredential { UserName = serviceLogin, Password = servicePassword } :
+                CredentialManager.TryRead(serviceCredential, CredentialManager.CredentialType.GENERIC, out var cred) != 0 ? throw new InvalidOperationException("Unable to read credential store") :
+                new NetworkCredential { UserName = cred.UserName, Password = cred.CredentialBlob };
         }
 
         /// <summary>
