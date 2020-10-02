@@ -169,10 +169,12 @@ Params | Dictionary<string, string> | Gets the parameters.
 
 ### Example
 ```C#
-var connString = new ParsedConnectionString("server=Database;UserId=User;Pwd=Password");
+var connString = new ParsedConnectionString("Server=Database;User Id=User;Password=Password");
 Console.WriteLine($"{connString.Server}, {connString.Credential.UserName}");
 
-var connString = new ParsedConnectionString("server=Database;Credential=LookupName");
+var connString = new ParsedConnectionString("Data Source=Database;Uid=User;Pwd=Password;Extra=Anything");
+Console.WriteLine($"{connString.Server}, {connString.Credential.UserName}");
+
+var connString = new ParsedConnectionString("Server=Database;Credential=LookupName");
 Console.WriteLine($"{connString.Server}, {connString.Credential.UserName}");
 ```
-

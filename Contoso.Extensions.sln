@@ -29,6 +29,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Contoso.Extensions.Caching.
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Contoso.Extensions.Ssh", "Contoso.Extensions.Ssh\Contoso.Extensions.Ssh.csproj", "{2EF8B36D-C526-4174-86AA-0B78D6DDD3EE}"
 EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Contoso.Extensions.Tests", "Contoso.Extensions.Tests\Contoso.Extensions.Tests.csproj", "{679B3E0A-83D3-4CC9-8E3A-63AE4D20C76B}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -87,6 +89,10 @@ Global
 		{2EF8B36D-C526-4174-86AA-0B78D6DDD3EE}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{2EF8B36D-C526-4174-86AA-0B78D6DDD3EE}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{2EF8B36D-C526-4174-86AA-0B78D6DDD3EE}.Release|Any CPU.Build.0 = Release|Any CPU
+		{679B3E0A-83D3-4CC9-8E3A-63AE4D20C76B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{679B3E0A-83D3-4CC9-8E3A-63AE4D20C76B}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{679B3E0A-83D3-4CC9-8E3A-63AE4D20C76B}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{679B3E0A-83D3-4CC9-8E3A-63AE4D20C76B}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
