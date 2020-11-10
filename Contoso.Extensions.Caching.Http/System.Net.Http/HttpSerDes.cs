@@ -9,11 +9,21 @@ using System.Threading.Tasks;
 
 namespace System.Net.Http
 {
+    /// <summary>
+    /// HttpSerDes
+    /// </summary>
     public static class HttpSerDes
     {
         static readonly Type ResponseContentType = typeof(HttpContent).Assembly.GetType("System.Net.Http.HttpConnectionResponseContent");
         static readonly MethodInfo SetStreamMethod = ResponseContentType?.GetMethod("SetStream");
 
+        /// <summary>
+        /// Serializes the response message asynchronous.
+        /// </summary>
+        /// <param name="response">The response.</param>
+        /// <returns></returns>
+        /// <exception cref="InvalidOperationException">Unable to find HttpConnectionResponseContent</exception>
+        /// <exception cref="ArgumentNullException">response</exception>
         public static async Task<StreamWithHeader> SerializeResponseMessageAsync(HttpResponseMessage response)
         {
             if (ResponseContentType == null)
@@ -41,6 +51,13 @@ namespace System.Net.Http
             }
         }
 
+        /// <summary>
+        /// Deserializes the response message asynchronous.
+        /// </summary>
+        /// <param name="source">The source.</param>
+        /// <returns></returns>
+        /// <exception cref="InvalidOperationException">Unable to find HttpConnectionResponseContent</exception>
+        /// <exception cref="ArgumentNullException">source or Header</exception>
         public static Task<HttpResponseMessage> DeserializeResponseMessageAsync(StreamWithHeader source)
         {
             if (ResponseContentType == null)

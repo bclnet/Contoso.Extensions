@@ -2,6 +2,9 @@
 
 namespace Contoso.Extensions.Caching.Stream
 {
+    /// <summary>
+    /// StreamCacheEntryExtensions
+    /// </summary>
     public static class StreamCacheEntryExtensions
     {
         /// <summary>
@@ -9,9 +12,7 @@ namespace Contoso.Extensions.Caching.Stream
         /// </summary>
         /// <param name="options"></param>
         /// <param name="relative"></param>
-        public static StreamCacheEntryOptions SetAbsoluteExpiration(
-            this StreamCacheEntryOptions options,
-            TimeSpan relative)
+        public static StreamCacheEntryOptions SetAbsoluteExpiration(this StreamCacheEntryOptions options, TimeSpan relative)
         {
             options.AbsoluteExpirationRelativeToNow = relative;
             return options;
@@ -22,9 +23,7 @@ namespace Contoso.Extensions.Caching.Stream
         /// </summary>
         /// <param name="options"></param>
         /// <param name="absolute"></param>
-        public static StreamCacheEntryOptions SetAbsoluteExpiration(
-            this StreamCacheEntryOptions options,
-            DateTimeOffset absolute)
+        public static StreamCacheEntryOptions SetAbsoluteExpiration(this StreamCacheEntryOptions options, DateTimeOffset absolute)
         {
             options.AbsoluteExpiration = absolute;
             return options;
@@ -36,9 +35,7 @@ namespace Contoso.Extensions.Caching.Stream
         /// </summary>
         /// <param name="options"></param>
         /// <param name="offset"></param>
-        public static StreamCacheEntryOptions SetSlidingExpiration(
-            this StreamCacheEntryOptions options,
-            TimeSpan offset)
+        public static StreamCacheEntryOptions SetSlidingExpiration(this StreamCacheEntryOptions options, TimeSpan offset)
         {
             options.SlidingExpiration = offset;
             return options;

@@ -20,6 +20,9 @@ namespace Contoso.Extensions.Caching.MemoryStream
     {
         static readonly PropertyInfo EntriesCollectionProp = typeof(MemoryCache).GetProperty("EntriesCollection", BindingFlags.NonPublic | BindingFlags.Instance);
 
+        /// <summary>
+        /// The custom type serializers
+        /// </summary>
         public static readonly Dictionary<Type, (Action<BinaryFormatter, FileStream, object>, Func<BinaryFormatter, FileStream, object>)> CustomTypeSerializers
             = new Dictionary<Type, (Action<BinaryFormatter, FileStream, object>, Func<BinaryFormatter, FileStream, object>)>{
                 {typeof(StreamWithHeader), (SerializeStreamWithHeader, DeserializeStreamWithHeader) }
@@ -44,6 +47,13 @@ namespace Contoso.Extensions.Caching.MemoryStream
             return new StreamWithHeader(@base, header);
         }
 
+        /// <summary>
+        /// Copies the till.
+        /// </summary>
+        /// <param name="input">The input.</param>
+        /// <param name="output">The output.</param>
+        /// <param name="bytes">The bytes.</param>
+        /// <returns></returns>
         public static IOStream CopyTill(this IOStream input, IOStream output, long bytes)
         {
             int read;
@@ -56,9 +66,14 @@ namespace Contoso.Extensions.Caching.MemoryStream
             return output;
         }
 
+        /// <summary>
+        /// Saves to file.
+        /// </summary>
+        /// <param name="source">The source.</param>
+        /// <param name="path">The path.</param>
+        /// <exception cref="ArgumentOutOfRangeException">source</exception>
         public static void SaveToFile(this MemoryStreamCache source, string path)
         {
-            return;
             var memCache = source._memCache;
             if (!(EntriesCollectionProp.GetValue(memCache) is ICollection collection))
                 throw new ArgumentOutOfRangeException(nameof(source));
@@ -101,9 +116,13 @@ namespace Contoso.Extensions.Caching.MemoryStream
             }
         }
 
+        /// <summary>
+        /// Loads from file.
+        /// </summary>
+        /// <param name="source">The source.</param>
+        /// <param name="path">The path.</param>
         public static void LoadFromFile(this MemoryStreamCache source, string path)
         {
-            return;
             if (!File.Exists(path))
                 return;
             var memCache = source._memCache;

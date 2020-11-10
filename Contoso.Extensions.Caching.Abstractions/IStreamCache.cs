@@ -2,7 +2,6 @@
 using System.Threading.Tasks;
 using IOStream = System.IO.Stream;
 
-// https://github.com/aspnet/Caching/tree/master/src/Microsoft.Extensions.Caching.Abstractions
 namespace Contoso.Extensions.Caching.Stream
 {
     /// <summary>

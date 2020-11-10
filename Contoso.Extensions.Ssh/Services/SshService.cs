@@ -7,13 +7,32 @@ using System.Security;
 
 namespace Contoso.Extensions.Services
 {
+    /// <summary>
+    /// ISshService
+    /// </summary>
     public interface ISshService
     {
+        /// <summary>
+        /// Gets the connection.
+        /// </summary>
+        /// <param name="name">The name.</param>
+        /// <returns></returns>
         ScpClient GetConnection(string name);
     }
 
+    /// <summary>
+    /// SshService
+    /// </summary>
+    /// <seealso cref="Contoso.Extensions.Services.ISshService" />
     public class SshService : ISshService
     {
+        /// <summary>
+        /// Gets the connection.
+        /// </summary>
+        /// <param name="name">The name.</param>
+        /// <returns></returns>
+        /// <exception cref="ArgumentNullException">name</exception>
+        /// <exception cref="InvalidOperationException">ConfigBase.Configuration must be set before using GetConnection()</exception>
         public ScpClient GetConnection(string name)
         {
             if (string.IsNullOrEmpty(name))
@@ -23,6 +42,18 @@ namespace Contoso.Extensions.Services
             return GetConnection(server, credential, filePath);
         }
 
+        /// <summary>
+        /// Gets the connection.
+        /// </summary>
+        /// <param name="server">The server.</param>
+        /// <param name="credential">The credential.</param>
+        /// <param name="filePath">The file path.</param>
+        /// <returns></returns>
+        /// <exception cref="ArgumentNullException">
+        /// server
+        /// or
+        /// credential
+        /// </exception>
         public static ScpClient GetConnection(string server, NetworkCredential credential, string filePath)
         {
             if (string.IsNullOrEmpty(server))
@@ -33,6 +64,13 @@ namespace Contoso.Extensions.Services
             return new ScpClient(server, credential.UserName, new PrivateKeyFile(fileName, credential.Password));
         }
 
+        /// <summary>
+        /// Parses the connection.
+        /// </summary>
+        /// <param name="connectionString">The connection string.</param>
+        /// <returns></returns>
+        /// <exception cref="ArgumentNullException">connectionString</exception>
+        /// <exception cref="InvalidOperationException">Unable to read credential store</exception>
         public static (string server, NetworkCredential credential, string filePath) ParseConnection(string connectionString)
         {
             if (string.IsNullOrEmpty(connectionString))

@@ -6,18 +6,62 @@ using System.Data;
 
 namespace Contoso.Extensions.Services
 {
+    /// <summary>
+    /// IDbService
+    /// </summary>
     public interface IDbService
     {
+        /// <summary>
+        /// Gets the connection.
+        /// </summary>
+        /// <param name="name">The name.</param>
+        /// <param name="skipAzure">if set to <c>true</c> [skip azure].</param>
+        /// <returns></returns>
         IDbConnection GetConnection(string name = null, bool skipAzure = false);
+        /// <summary>
+        /// Gets the connection string.
+        /// </summary>
+        /// <param name="name">The name.</param>
+        /// <param name="skipAzure">if set to <c>true</c> [skip azure].</param>
+        /// <returns></returns>
         string GetConnectionString(string name = null, bool skipAzure = false);
     }
 
+    /// <summary>
+    /// 
+    /// </summary>
+    /// <seealso cref="Contoso.Extensions.Services.IDbService" />
     public class DbService : IDbService
     {
+        /// <summary>
+        /// Gets the command timeout.
+        /// </summary>
+        /// <value>
+        /// The command timeout.
+        /// </value>
         public static int CommandTimeout => 60;
+        /// <summary>
+        /// Gets the long command timeout.
+        /// </summary>
+        /// <value>
+        /// The long command timeout.
+        /// </value>
         public static int LongCommandTimeout => 360;
+        /// <summary>
+        /// Gets the very long command timeout.
+        /// </summary>
+        /// <value>
+        /// The very long command timeout.
+        /// </value>
         public static int VeryLongCommandTimeout => 3600;
 
+        /// <summary>
+        /// Gets the connection.
+        /// </summary>
+        /// <param name="name">The name.</param>
+        /// <param name="skipAzure">if set to <c>true</c> [skip azure].</param>
+        /// <returns></returns>
+        /// <exception cref="InvalidOperationException">ConfigBase.Configuration must be set before using GetConnection()</exception>
         public IDbConnection GetConnection(string name = null, bool skipAzure = false)
         {
             var configuration = ConfigBase.Configuration ?? throw new InvalidOperationException("ConfigBase.Configuration must be set before using GetConnection()");
@@ -31,6 +75,13 @@ namespace Contoso.Extensions.Services
             return conn;
         }
 
+        /// <summary>
+        /// Gets the connection string.
+        /// </summary>
+        /// <param name="name">The name.</param>
+        /// <param name="skipAzure">if set to <c>true</c> [skip azure].</param>
+        /// <returns></returns>
+        /// <exception cref="InvalidOperationException">ConfigBase.Configuration must be set before using GetConnection()</exception>
         public string GetConnectionString(string name = null, bool skipAzure = false)
         {
             var configuration = ConfigBase.Configuration ?? throw new InvalidOperationException("ConfigBase.Configuration must be set before using GetConnection()");

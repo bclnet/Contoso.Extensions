@@ -7,17 +7,53 @@ using System.Threading.Tasks;
 // https://www.imperva.com/learn/performance/cache-control/
 namespace System.Net.Http
 {
+    /// <summary>
+    /// HttpCachedClient
+    /// </summary>
+    /// <seealso cref="System.Net.Http.HttpClient" />
     public class HttpCachedClient : HttpClient
     {
+        /// <summary>
+        /// Initializes a new instance of the <see cref="HttpCachedClient"/> class.
+        /// </summary>
+        /// <param name="cache">The cache.</param>
+        /// <exception cref="ArgumentNullException">cache</exception>
         public HttpCachedClient(IStreamCache cache) : base() => Cache = cache ?? throw new ArgumentNullException(nameof(cache));
+        /// <summary>
+        /// Initializes a new instance of the <see cref="HttpCachedClient"/> class.
+        /// </summary>
+        /// <param name="cache">The cache.</param>
+        /// <param name="handler">The handler.</param>
+        /// <exception cref="ArgumentNullException">cache</exception>
         public HttpCachedClient(IStreamCache cache, HttpMessageHandler handler) : base(handler) => Cache = cache ?? throw new ArgumentNullException(nameof(cache));
+        /// <summary>
+        /// Initializes a new instance of the <see cref="HttpCachedClient"/> class.
+        /// </summary>
+        /// <param name="cache">The cache.</param>
+        /// <param name="handler">The handler.</param>
+        /// <param name="disposeHandler">if set to <c>true</c> [dispose handler].</param>
+        /// <exception cref="ArgumentNullException">cache</exception>
         public HttpCachedClient(IStreamCache cache, HttpMessageHandler handler, bool disposeHandler) : base(handler, disposeHandler) => Cache = cache ?? throw new ArgumentNullException(nameof(cache));
 
+        /// <summary>
+        /// Gets the cache.
+        /// </summary>
+        /// <value>
+        /// The cache.
+        /// </value>
         public IStreamCache Cache { get; }
 
         // SENDASYNC
         static bool CanCache(HttpRequestMessage request) => request.Method == HttpMethod.Get;
 
+        /// <summary>
+        /// Send an HTTP request as an asynchronous operation.
+        /// </summary>
+        /// <param name="request">The HTTP request message to send.</param>
+        /// <param name="cancellationToken">The cancellation token to cancel operation.</param>
+        /// <returns>
+        /// The task object representing the asynchronous operation.
+        /// </returns>
         public override Task<HttpResponseMessage> SendAsync(HttpRequestMessage request, CancellationToken cancellationToken) => CanCache(request)
             ? WrappedSendAsync(base.SendAsync(request, cancellationToken), request, cancellationToken)
             : base.SendAsync(request, cancellationToken);
@@ -27,9 +63,7 @@ namespace System.Net.Http
             var key = GetKey(request);
             //var response = await GetCachedResponseAsync(key, request, cancellationToken);
             //if (response != null)
-            //{
             //    return response;
-            //}
             var response = await @base;
             await SetCachedResponseAsync(key, response, cancellationToken);
             response = await GetCachedResponseAsync(key, request, cancellationToken);

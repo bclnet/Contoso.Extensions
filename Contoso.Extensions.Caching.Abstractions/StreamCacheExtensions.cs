@@ -22,7 +22,6 @@ namespace Contoso.Extensions.Caching.Stream
         {
             if (value == null)
                 throw new ArgumentNullException(nameof(value));
-
             cache.Set(key, value, new StreamCacheEntryOptions());
         }
 
@@ -39,7 +38,6 @@ namespace Contoso.Extensions.Caching.Stream
         {
             if (value == null)
                 throw new ArgumentNullException(nameof(value));
-
             return cache.SetAsync(key, value, new StreamCacheEntryOptions(), token);
         }
     }

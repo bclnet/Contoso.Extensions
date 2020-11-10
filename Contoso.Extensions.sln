@@ -9,9 +9,9 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Contoso.Extensions.Caching"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Contoso.Extensions.Data", "Contoso.Extensions.Data\Contoso.Extensions.Data.csproj", "{FCE72433-D9E0-460A-A127-EF3291AB6DE2}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Contoso.Extensions.Caching.FileStream", "Contoso.Extensions.Caching.FileStream\Contoso.Extensions.Caching.FileStream.csproj", "{A98D26B6-0263-4F89-83E8-00119F667410}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Contoso.Extensions.Caching.FileStream", "Incomplete\Contoso.Extensions.Caching.FileStream\Contoso.Extensions.Caching.FileStream.csproj", "{A98D26B6-0263-4F89-83E8-00119F667410}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Contoso.Extensions.Caching.FileStream.Tests", "Contoso.Extensions.Caching.FileStream.Tests\Contoso.Extensions.Caching.FileStream.Tests.csproj", "{3EBD119B-3779-4375-87D8-33CCA243050F}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Contoso.Extensions.Caching.FileStream.Tests", "Incomplete\Contoso.Extensions.Caching.FileStream.Tests\Contoso.Extensions.Caching.FileStream.Tests.csproj", "{3EBD119B-3779-4375-87D8-33CCA243050F}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Contoso.Extensions.Caching.SQLite", "Contoso.Extensions.Caching.SQLite\Contoso.Extensions.Caching.SQLite.csproj", "{A131B546-D53A-4464-9D9C-6AC3C28C7A98}"
 EndProject
@@ -21,7 +21,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Contoso.Extensions.Caching.
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "dotnet-sqlite-cache", "dotnet-sqlite-cache\dotnet-sqlite-cache.csproj", "{EC49E992-0520-4A00-BB96-42DCB438DCB1}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Contoso.Extensions.FileSystem", "Contoso.Extensions.FileSystem\Contoso.Extensions.FileSystem.csproj", "{026AA247-FE6E-4ED3-B370-A163B2C3AE9A}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Contoso.Extensions.FileSystem", "Incomplete\Contoso.Extensions.FileSystem\Contoso.Extensions.FileSystem.csproj", "{026AA247-FE6E-4ED3-B370-A163B2C3AE9A}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Contoso.Extensions.Caching.Http", "Contoso.Extensions.Caching.Http\Contoso.Extensions.Caching.Http.csproj", "{1058B425-C98B-49BF-A961-472005F68BB0}"
 EndProject
@@ -30,6 +30,8 @@ EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Contoso.Extensions.Ssh", "Contoso.Extensions.Ssh\Contoso.Extensions.Ssh.csproj", "{2EF8B36D-C526-4174-86AA-0B78D6DDD3EE}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Contoso.Extensions.Tests", "Contoso.Extensions.Tests\Contoso.Extensions.Tests.csproj", "{679B3E0A-83D3-4CC9-8E3A-63AE4D20C76B}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Incomplete", "Incomplete", "{7AD9EFA4-10DD-496A-9B59-AEF2DCD428F6}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -96,6 +98,11 @@ Global
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{A98D26B6-0263-4F89-83E8-00119F667410} = {7AD9EFA4-10DD-496A-9B59-AEF2DCD428F6}
+		{3EBD119B-3779-4375-87D8-33CCA243050F} = {7AD9EFA4-10DD-496A-9B59-AEF2DCD428F6}
+		{026AA247-FE6E-4ED3-B370-A163B2C3AE9A} = {7AD9EFA4-10DD-496A-9B59-AEF2DCD428F6}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {C6F0BB94-DECA-4B3E-BA62-CC63066257FF}

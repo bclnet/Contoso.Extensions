@@ -7,6 +7,9 @@ namespace Contoso.Extensions.Caching.MemoryStream
     /// </summary>
     public class MemoryStreamCacheOptions : MemoryCacheOptions
     {
+        /// <summary>
+        /// Initializes a new instance of the <see cref="MemoryStreamCacheOptions"/> class.
+        /// </summary>
         public MemoryStreamCacheOptions()
             : base()
         {
