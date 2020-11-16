@@ -10,7 +10,7 @@ using IOStream = System.IO.Stream;
 namespace Contoso.Extensions.Caching.MemoryStream
 {
     /// <summary>
-    /// 
+    /// MemoryStreamCache
     /// </summary>
     /// <seealso cref="Contoso.Extensions.Caching.Stream.IStreamCache" />
     public class MemoryStreamCache : IStreamCache

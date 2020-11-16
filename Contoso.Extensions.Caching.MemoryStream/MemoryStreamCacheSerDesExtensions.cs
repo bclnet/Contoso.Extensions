@@ -5,11 +5,8 @@ using System.Collections;
 using System.Collections.Generic;
 using System.IO;
 using System.Reflection;
-using System.Runtime.CompilerServices;
-using System.Runtime.Serialization;
-using System.Runtime.Serialization.Formatters.Binary;
-using IOStream = System.IO.Stream;
 using IOMemoryStream = System.IO.MemoryStream;
+using IOStream = System.IO.Stream;
 
 namespace Contoso.Extensions.Caching.MemoryStream
 {
@@ -23,26 +20,27 @@ namespace Contoso.Extensions.Caching.MemoryStream
         /// <summary>
         /// The custom type serializers
         /// </summary>
-        public static readonly Dictionary<Type, (Action<BinaryFormatter, FileStream, object>, Func<BinaryFormatter, FileStream, object>)> CustomTypeSerializers
-            = new Dictionary<Type, (Action<BinaryFormatter, FileStream, object>, Func<BinaryFormatter, FileStream, object>)>{
+        public static readonly Dictionary<Type, (Action<BinaryWriter, FileStream, object> w, Func<BinaryReader, FileStream, object> r)> CustomTypeSerializers
+            = new Dictionary<Type, (Action<BinaryWriter, FileStream, object> w, Func<BinaryReader, FileStream, object> r)>{
                 {typeof(StreamWithHeader), (SerializeStreamWithHeader, DeserializeStreamWithHeader) }
             };
 
-        static void SerializeStreamWithHeader(BinaryFormatter f, FileStream s, object value)
+        static void SerializeStreamWithHeader(BinaryWriter f, FileStream s, object value)
         {
             var streamWithHeader = (StreamWithHeader)value;
             var @base = streamWithHeader.Base;
             var header = streamWithHeader.Header;
-            f.Serialize(s, header != null);
-            if (header != null) f.Serialize(s, header);
-            f.Serialize(s, @base.Length);
+            f.Write(header != null); if (header != null) { f.Write(header.Length); f.Write(header); }
+            f.Write(@base.Length);
             @base.CopyTo(s);
+            if (@base.CanSeek)
+                @base.Position = 0;
         }
 
-        static object DeserializeStreamWithHeader(BinaryFormatter f, FileStream s)
+        static object DeserializeStreamWithHeader(BinaryReader f, FileStream s)
         {
-            var header = (bool)f.Deserialize(s) ? (byte[])f.Deserialize(s) : null;
-            var baseLength = (long)f.Deserialize(s);
+            var header = f.ReadBoolean() ? f.ReadBytes(f.ReadInt32()) : null;
+            var baseLength = f.ReadInt64();
             var @base = s.CopyTill(new IOMemoryStream(), baseLength);
             return new StreamWithHeader(@base, header);
         }
@@ -80,8 +78,8 @@ namespace Contoso.Extensions.Caching.MemoryStream
 
             using (var s = new FileStream(path, FileMode.OpenOrCreate, FileAccess.Write))
             {
-                var f = new BinaryFormatter();
-                f.Serialize(s, collection.Count);
+                var f = new BinaryWriter(s);
+                f.Write(collection.Count);
                 foreach (var item in collection)
                 {
                     var p = s.Position;
@@ -89,28 +87,23 @@ namespace Contoso.Extensions.Caching.MemoryStream
                     {
                         var value = (ICacheEntry)item.GetType().GetProperty("Value").GetValue(item);
                         var valueType = value.Value?.GetType() ?? typeof(object);
-                        var valueSer = CustomTypeSerializers.TryGetValue(valueType, out var z) ? z.Item1 : (a, b, c) => a.Serialize(b, c);
+                        var valueSer = CustomTypeSerializers.TryGetValue(valueType, out var z) ? z.w : (a, b, c) => throw new NotSupportedException(); // a.Serialize(b, c);
 
                         // serialize
-                        f.Serialize(s, true);
-                        f.Serialize(s, valueType.AssemblyQualifiedName);
-                        f.Serialize(s, value.Key);
-                        f.Serialize(s, value.Value != null);
-                        if (value.Value != null) valueSer(f, s, value.Value);
-                        f.Serialize(s, value.AbsoluteExpiration.HasValue);
-                        if (value.AbsoluteExpiration.HasValue) f.Serialize(s, value.AbsoluteExpiration.Value);
-                        f.Serialize(s, value.AbsoluteExpirationRelativeToNow.HasValue);
-                        if (value.AbsoluteExpiration.HasValue) f.Serialize(s, value.AbsoluteExpirationRelativeToNow.Value);
-                        f.Serialize(s, value.SlidingExpiration.HasValue);
-                        if (value.SlidingExpiration.HasValue) f.Serialize(s, value.SlidingExpiration.Value);
-                        f.Serialize(s, (int)value.Priority);
-                        f.Serialize(s, value.Size.HasValue);
-                        if (value.Size.HasValue) f.Serialize(s, value.Size.Value);
+                        f.Write(true);
+                        f.Write(valueType.AssemblyQualifiedName);
+                        f.WriteKey(value.Key);
+                        f.Write(value.Value != null); if (value.Value != null) valueSer(f, s, value.Value);
+                        f.Write(value.AbsoluteExpiration != null); if (value.AbsoluteExpiration != null) f.Write(value.AbsoluteExpiration.Value);
+                        f.Write(value.AbsoluteExpirationRelativeToNow != null); if (value.AbsoluteExpirationRelativeToNow != null) f.Write(value.AbsoluteExpirationRelativeToNow.Value);
+                        f.Write(value.SlidingExpiration != null); if (value.SlidingExpiration != null) f.Write(value.SlidingExpiration.Value);
+                        f.Write((int)value.Priority);
+                        f.Write(value.Size != null); if (value.Size != null) f.Write(value.Size.Value);
                     }
                     catch
                     {
                         s.Position = p;
-                        f.Serialize(s, false);
+                        f.Write(false);
                     }
                 }
             }
@@ -129,27 +122,34 @@ namespace Contoso.Extensions.Caching.MemoryStream
 
             using (var s = new FileStream(path, FileMode.Open, FileAccess.Read))
             {
-                var f = new BinaryFormatter();
-                var count = (int)f.Deserialize(s);
+                var f = new BinaryReader(s);
+                var count = f.ReadInt32();
                 for (var idx = 0; idx < count; idx++)
-                    if ((bool)f.Deserialize(s))
+                    if (f.ReadBoolean())
                     {
-                        var valueType = Type.GetType((string)f.Deserialize(s));
-                        var valueDes = CustomTypeSerializers.TryGetValue(valueType, out var z) ? z.Item2 : (a, b) => a.Deserialize(b);
+                        var valueType = Type.GetType(f.ReadString());
+                        var valueDes = CustomTypeSerializers.TryGetValue(valueType, out var z) ? z.r : (a, b) => throw new NotSupportedException(); // a.Deserialize(b);
                         // deserialize
                         memCache.Set(
-                            f.Deserialize(s),
-                            (bool)f.Deserialize(s) ? valueDes(f, s) : null,
+                            f.ReadKey(),
+                            f.ReadBoolean() ? valueDes(f, s) : null,
                             new MemoryCacheEntryOptions
                             {
-                                AbsoluteExpiration = (bool)f.Deserialize(s) ? (DateTimeOffset?)f.Deserialize(s) : null,
-                                AbsoluteExpirationRelativeToNow = (bool)f.Deserialize(s) ? (TimeSpan?)f.Deserialize(s) : null,
-                                SlidingExpiration = (bool)f.Deserialize(s) ? (TimeSpan?)f.Deserialize(s) : null,
-                                Priority = (CacheItemPriority)(int)f.Deserialize(s),
-                                Size = (bool)f.Deserialize(s) ? (long?)f.Deserialize(s) : null,
+                                AbsoluteExpiration = f.ReadBoolean() ? (DateTimeOffset?)f.ReadDateTimeOffset() : null,
+                                AbsoluteExpirationRelativeToNow = f.ReadBoolean() ? (TimeSpan?)f.ReadTimeSpan() : null,
+                                SlidingExpiration = f.ReadBoolean() ? (TimeSpan?)f.ReadTimeSpan() : null,
+                                Priority = (CacheItemPriority)f.ReadInt32(),
+                                Size = f.ReadBoolean() ? (long?)f.ReadInt64() : null,
                             });
                     }
             }
         }
+
+        static void WriteKey(this BinaryWriter s, object value) { if (value is string key) s.Write(key); else throw new NotSupportedException(); }
+        static object ReadKey(this BinaryReader s) => s.ReadString();
+        static void Write(this BinaryWriter s, TimeSpan value) => s.Write(value.Ticks);
+        static TimeSpan ReadTimeSpan(this BinaryReader s) => new TimeSpan(s.ReadInt64());
+        static void Write(this BinaryWriter s, DateTimeOffset value) { s.Write(value.Ticks); s.Write(value.Offset.Ticks); }
+        static DateTimeOffset ReadDateTimeOffset(this BinaryReader s) => new DateTimeOffset(s.ReadInt64(), new TimeSpan(s.ReadInt64()));
     }
 }

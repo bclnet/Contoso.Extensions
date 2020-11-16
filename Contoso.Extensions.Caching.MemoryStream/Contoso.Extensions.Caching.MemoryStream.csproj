@@ -8,7 +8,7 @@
     <Company>Contoso</Company>
     <Authors>Contoso</Authors>
     <Product>Contoso.Extensions</Product>
-    <Version>1.0.3</Version>
+    <Version>1.0.4</Version>
     <Description>Stream cache implementation of Contoso.Extensions.Caching.Stream.IStreamCache using Memory.</Description>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">

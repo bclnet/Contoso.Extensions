@@ -4,7 +4,6 @@ using System.IO;
 using System.IO.Compression;
 using System.Linq;
 using System.Reflection;
-using System.Runtime.Serialization.Formatters.Binary;
 using System.Threading.Tasks;
 
 namespace System.Net.Http
@@ -34,12 +33,11 @@ namespace System.Net.Http
             var headers = response.Headers.ToDictionary(a => a.Key, a => a.Value);
             using (var s = new MemoryStream())
             {
-                var f = new BinaryFormatter();
-                f.Serialize(s, (int)response.StatusCode);
-                f.Serialize(s, response.Version.ToString());
-                f.Serialize(s, response.ReasonPhrase != null);
-                if (response.ReasonPhrase != null) f.Serialize(s, response.ReasonPhrase);
-                f.Serialize(s, headers);
+                var f = new BinaryWriter(s);
+                f.Write((int)response.StatusCode);
+                f.Write(response.Version.ToString());
+                f.Write(response.ReasonPhrase != null); if (response.ReasonPhrase != null) f.Write(response.ReasonPhrase);
+                f.Write(headers);
                 var header = Compress(s.ToArray());
 
                 var @base = await response.Content.ReadAsStreamAsync();
@@ -69,16 +67,18 @@ namespace System.Net.Http
 
             using (var s = new MemoryStream(Decompress(source.Header)))
             {
-                var f = new BinaryFormatter();
-                var response = new HttpResponseMessage((HttpStatusCode)(int)f.Deserialize(s))
+                var f = new BinaryReader(s);
+                var response = new HttpResponseMessage((HttpStatusCode)f.ReadInt32())
                 {
-                    Version = new Version((string)f.Deserialize(s)),
-                    ReasonPhrase = (bool)f.Deserialize(s) ? (string)f.Deserialize(s) : null,
+                    Version = new Version(f.ReadString()),
+                    ReasonPhrase = f.ReadBoolean() ? f.ReadString() : null,
                 };
-                var headers = (Dictionary<string, IEnumerable<string>>)f.Deserialize(s);
+                var headers = f.ReadDictionary();
                 foreach (var header in headers)
                     response.Headers.Add(header.Key, header.Value);
 
+                if (source.Base.CanSeek)
+                    source.Base.Position = 0;
                 var content = new StreamContent(source.Base);
                 //var content = (HttpContent)Activator.CreateInstance(ResponseContentType);
                 //SetStreamMethod.Invoke(content, new[] { source.Base });
@@ -86,6 +86,43 @@ namespace System.Net.Http
                 response.Content = content;
                 return Task.FromResult(response);
             }
+        }
+
+        static void Write(this BinaryWriter s, Dictionary<string, IEnumerable<string>> value)
+        {
+            s.Write(value.Count);
+            foreach (var kv in value)
+            {
+                s.Write(kv.Key);
+                s.Write(kv.Value != null);
+                if (kv.Value != null)
+                {
+                    s.Write(kv.Value.Count());
+                    foreach (var v in kv.Value)
+                    {
+                        s.Write(v != null); if (v != null) s.Write(v);
+                    }
+                }
+            }
+        }
+
+        static Dictionary<string, IEnumerable<string>> ReadDictionary(this BinaryReader s)
+        {
+            var r = new Dictionary<string, IEnumerable<string>>();
+            var count = s.ReadInt32();
+            for (var kv = 0; kv < count; kv++)
+            {
+                var key = s.ReadString();
+                if (s.ReadBoolean())
+                {
+                    var list = new List<string>();
+                    var count2 = s.ReadInt32();
+                    for (var v = 0; v < count2; v++)
+                        list.Add(s.ReadBoolean() ? s.ReadString() : null);
+                    r.Add(key, list);
+                }
+            }
+            return r;
         }
 
         static byte[] Compress(byte[] input)
