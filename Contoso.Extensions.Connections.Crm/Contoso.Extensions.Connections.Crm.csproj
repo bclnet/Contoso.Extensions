@@ -1,0 +1,77 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <TargetFramework>net472</TargetFramework>
+    <ApplicationIcon />
+    <OutputType>Library</OutputType>
+    <StartupObject />
+    <Description>connection to Microsoft CRM</Description>
+    <Authors>Contoso</Authors>
+    <Product>Contoso.Extensions</Product>
+    <PackageLicenseExpression>MIT</PackageLicenseExpression>
+    <RepositoryUrl>https://github.com/bclnet/Contoso.Extensions</RepositoryUrl>
+    <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+    <IncludeBuildOutput>false</IncludeBuildOutput>
+  </PropertyGroup>
+  <ItemGroup>
+    <Compile Remove="Connections\Crm\Connection.cs" />
+    <Compile Remove="Connections\Crm\CrmClient.cs" />
+    <Compile Remove="Connections\Crm\CrmContext.cs" />
+    <Compile Remove="Connections\Crm\CrmExtensions.cs" />
+    <Compile Remove="Connections\Crm\CrmServiceCollectionExtensions.cs" />
+    <Compile Remove="Connections\Crm\ICrmConnectionString.cs" />
+    <Compile Remove="Connections\Crm\ICrmOptions.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Remove="Connections\Crm\Generate.cmd" />
+    <None Remove="Connections\Crm\tools\CrmSvcUtil.exe" />
+    <None Remove="Connections\Crm\tools\CrmSvcUtil.exe.config" />
+    <None Remove="Connections\Crm\tools\CrmSvcUtil.xml" />
+    <None Remove="Connections\Crm\tools\LicenseTerms.docx" />
+    <None Remove="Connections\Crm\tools\Microsoft.Crm.Sdk.Proxy.dll" />
+    <None Remove="Connections\Crm\tools\Microsoft.IdentityModel.Clients.ActiveDirectory.dll" />
+    <None Remove="Connections\Crm\tools\Microsoft.IdentityModel.Clients.ActiveDirectory.WindowsForms.dll" />
+    <None Remove="Connections\Crm\tools\Microsoft.Rest.ClientRuntime.dll" />
+    <None Remove="Connections\Crm\tools\Microsoft.Xrm.Sdk.Deployment.dll" />
+    <None Remove="Connections\Crm\tools\Microsoft.Xrm.Sdk.dll" />
+    <None Remove="Connections\Crm\tools\Microsoft.Xrm.Tooling.Connector.dll" />
+    <None Remove="Connections\Crm\tools\Microsoft.Xrm.Tooling.CrmConnectControl.dll" />
+    <None Remove="Connections\Crm\tools\Microsoft.Xrm.Tooling.Ui.Styles.dll" />
+    <None Remove="Connections\Crm\tools\Newtonsoft.Json.dll" />
+    <None Remove="Connections\Crm\tools\System.ValueTuple.dll" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Connections\Crm\Connection.cs" />
+    <Content Include="Connections\Crm\CrmClient.cs" />
+    <Content Include="Connections\Crm\CrmContext.cs" />
+    <Content Include="Connections\Crm\CrmExtensions.cs" />
+    <Content Include="Connections\Crm\CrmServiceCollectionExtensions.cs" />
+    <Content Include="Connections\Crm\Generate.cmd" />
+    <Content Include="Connections\Crm\ICrmConnectionString.cs" />
+    <Content Include="Connections\Crm\ICrmOptions.cs" />
+    <Content Include="Connections\Crm\tools\CrmSvcUtil.exe" />
+    <Content Include="Connections\Crm\tools\CrmSvcUtil.exe.config" />
+    <Content Include="Connections\Crm\tools\CrmSvcUtil.xml" />
+    <Content Include="Connections\Crm\tools\LicenseTerms.docx" />
+    <Content Include="Connections\Crm\tools\Microsoft.Crm.Sdk.Proxy.dll" />
+    <Content Include="Connections\Crm\tools\Microsoft.IdentityModel.Clients.ActiveDirectory.dll" />
+    <Content Include="Connections\Crm\tools\Microsoft.IdentityModel.Clients.ActiveDirectory.WindowsForms.dll" />
+    <Content Include="Connections\Crm\tools\Microsoft.Rest.ClientRuntime.dll" />
+    <Content Include="Connections\Crm\tools\Microsoft.Xrm.Sdk.Deployment.dll" />
+    <Content Include="Connections\Crm\tools\Microsoft.Xrm.Sdk.dll" />
+    <Content Include="Connections\Crm\tools\Microsoft.Xrm.Tooling.Connector.dll" />
+    <Content Include="Connections\Crm\tools\Microsoft.Xrm.Tooling.CrmConnectControl.dll" />
+    <Content Include="Connections\Crm\tools\Microsoft.Xrm.Tooling.Ui.Styles.dll" />
+    <Content Include="Connections\Crm\tools\Newtonsoft.Json.dll" />
+    <Content Include="Connections\Crm\tools\System.ValueTuple.dll" />
+  </ItemGroup>
+  <ItemGroup>
+    <PackageReference Include="Microsoft.CrmSdk.CoreAssemblies" Version="9.0.2.28" />
+    <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="5.0.0" />
+    <PackageReference Include="System.ServiceModel.Http" Version="4.8.0" />
+    <PackageReference Include="System.ServiceModel.Primitives" Version="4.8.0" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\Contoso.Extensions\Contoso.Extensions.csproj" />
+  </ItemGroup>
+</Project>

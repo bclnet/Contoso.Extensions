@@ -1,0 +1,48 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <TargetFramework>net5.0</TargetFramework>
+    <RepositoryUrl>https://github.com/bclnet/Contoso.Extensions</RepositoryUrl>
+    <PackageLicenseExpression>MIT</PackageLicenseExpression>
+    <Company>Contoso</Company>
+    <Authors>Contoso</Authors>
+    <Product>Contoso.Extensions</Product>
+    <Description>connection to Salesforce CX</Description>
+    <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+    <IncludeBuildOutput>false</IncludeBuildOutput>
+  </PropertyGroup>
+  <ItemGroup>
+    <Compile Remove="Connections\Sfdc\Connection.cs" />
+    <Compile Remove="Connections\Sfdc\ISfdcConnectionString.cs" />
+    <Compile Remove="Connections\Sfdc\ISfdcOptions.cs" />
+    <Compile Remove="Connections\Sfdc\SfdcClient.cs" />
+    <Compile Remove="Connections\Sfdc\SfdcContext.cs" />
+    <Compile Remove="Connections\Sfdc\SfdcExtensions.cs" />
+    <Compile Remove="Connections\Sfdc\SfdcServiceCollectionExtensions.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Remove="Connections\Sfdc\Generate.cmd" />
+    <None Remove="Connections\Sfdc\tools\SvcUtil.exe" />
+    <None Remove="Connections\Sfdc\wsdl.xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Connections\Sfdc\Connection.cs" />
+    <Content Include="Connections\Sfdc\ISfdcConnectionString.cs" />
+    <Content Include="Connections\Sfdc\ISfdcOptions.cs" />
+    <Content Include="Connections\Sfdc\Generate.cmd" />
+    <Content Include="Connections\Sfdc\SfdcClient.cs" />
+    <Content Include="Connections\Sfdc\SfdcContext.cs" />
+    <Content Include="Connections\Sfdc\SfdcExtensions.cs" />
+    <Content Include="Connections\Sfdc\SfdcServiceCollectionExtensions.cs" />
+    <Content Include="Connections\Sfdc\tools\SvcUtil.exe" />
+    <Content Include="Connections\Sfdc\wsdl.xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions" Version="5.0.0" />
+    <PackageReference Include="System.ServiceModel.Http" Version="4.8.0" />
+    <PackageReference Include="System.ServiceModel.Primitives" Version="4.8.0" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\Contoso.Extensions\Contoso.Extensions.csproj" />
+  </ItemGroup>
+</Project>

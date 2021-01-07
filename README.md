@@ -20,5 +20,9 @@ The following list identifies all the packages we currently ship from [bclnet/Co
     * [`Contoso.Extensions.Caching.MemoryStream`](https://nuget.org/packages/Contoso.Extensions.Caching.MemoryStream) ([documentation](Contoso.Extensions.Caching.MemoryStream/README.md))
     * [`Contoso.Extensions.Caching.SQLite`](https://nuget.org/packages/Contoso.Extensions.Caching.SQLite) ([documentation](Contoso.Extensions.Caching.SQLite/README.md))
 
+* **Connections** - api connections to platforms
+    * [`Contoso.Extensions.Connections.Crm`](https://nuget.org/packages/Contoso.Extensions.Connections.Crm) ([documentation](Contoso.Extensions.Connection.Crm/README.md))
+    * [`Contoso.Extensions.Connections.Sfdc`](https://nuget.org/packages/Contoso.Extensions.Connections.Sfdc) ([documentation](Contoso.Extensions.Connection.Sfdc/README.md))
+
 * **Other**
     * [`Contoso.Extensions.Ssh`](https://nuget.org/packages/Contoso.Extensions.Ssh) ([documentation](Contoso.Extensions.Ssh/README.md))
