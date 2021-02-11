@@ -22,8 +22,6 @@ FilePath (optional) | The folder for the ssh key. (defaults to ~/.ssh/id_rsa)
   }
 }
 ```
-
-### Example
 ```C#
 static readonly ISshService _ssh = new SshService();
 

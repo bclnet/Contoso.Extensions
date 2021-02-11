@@ -8,9 +8,19 @@ using Directory_ = System.IO.Directory;
 
 namespace Microsoft.Extensions.Caching
 {
+    /// <summary>
+    /// Configuration for FileCacheDependencies
+    /// </summary>
     public static class FileCacheDependency
     {
         static string _directory;
+        /// <summary>
+        /// Gets or sets the directory.
+        /// </summary>
+        /// <value>
+        /// The directory.
+        /// </value>
+        /// <exception cref="ArgumentNullException">value</exception>
         public static string Directory
         {
             get => _directory;

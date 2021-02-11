@@ -7,14 +7,37 @@ using System.Threading.Tasks;
 
 namespace Microsoft.Extensions.Caching.Memory
 {
+    /// <summary>
+    /// Manages the MemoryCache.
+    /// </summary>
     public static class MemoryCacheManager
     {
         static readonly ReaderWriterLockSlim _rwLock = new ReaderWriterLockSlim(LockRecursionPolicy.SupportsRecursion);
         readonly static object EmptyValue = new object();
 
+        /// <summary>
+        /// Removes the specified key.
+        /// </summary>
+        /// <param name="cache">The cache.</param>
+        /// <param name="key">The key.</param>
+        /// <param name="values">The values.</param>
         public static void Remove(this IMemoryCache cache, MemoryCacheRegistration key, params object[] values) => cache.Remove(key.GetName(values));
+        /// <summary>
+        /// Determines whether this instance contains the object.
+        /// </summary>
+        /// <param name="cache">The cache.</param>
+        /// <param name="key">The key.</param>
+        /// <param name="values">The values.</param>
+        /// <returns>
+        ///   <c>true</c> if [contains] [the specified key]; otherwise, <c>false</c>.
+        /// </returns>
         public static bool Contains(this IMemoryCache cache, MemoryCacheRegistration key, params object[] values) => cache.Contains(key.GetName(values));
 
+        /// <summary>
+        /// Touches the specified names.
+        /// </summary>
+        /// <param name="cache">The cache.</param>
+        /// <param name="names">The names.</param>
         public static void Touch(this IMemoryCache cache, params string[] names)
         {
             if (names == null || names.Length == 0)
@@ -31,11 +54,55 @@ namespace Microsoft.Extensions.Caching.Memory
             }
         }
 
+        /// <summary>
+        /// Gets the specified key.
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="cache">The cache.</param>
+        /// <param name="key">The key.</param>
+        /// <param name="tag">The tag.</param>
+        /// <param name="values">The values.</param>
+        /// <returns></returns>
+        /// <exception cref="ArgumentNullException">key</exception>
         public static T Get<T>(this IMemoryCache cache, MemoryCacheRegistration key, object tag, params object[] values) => GetOrCreateUsingLock<T>(cache, key ?? throw new ArgumentNullException(nameof(key)), tag, values);
+        /// <summary>
+        /// Gets the specified key as MemoryCacheResult.
+        /// </summary>
+        /// <param name="cache">The cache.</param>
+        /// <param name="key">The key.</param>
+        /// <param name="tag">The tag.</param>
+        /// <param name="values">The values.</param>
+        /// <returns></returns>
         public static MemoryCacheResult GetResult(this IMemoryCache cache, MemoryCacheRegistration key, object tag, params object[] values) => Get<MemoryCacheResult>(cache, key, tag, values);
+        /// <summary>
+        /// Gets the specified key.
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="cache">The cache.</param>
+        /// <param name="key">The key.</param>
+        /// <param name="tag">The tag.</param>
+        /// <param name="values">The values.</param>
+        /// <returns></returns>
+        /// <exception cref="ArgumentNullException">key</exception>
         public static async Task<T> GetAsync<T>(this IMemoryCache cache, MemoryCacheRegistration key, object tag, params object[] values) => await GetOrCreateUsingLockAsync<T>(cache, key ?? throw new ArgumentNullException(nameof(key)), tag, values);
+        /// <summary>
+        /// Gets the specified key as MemoryCacheResult.
+        /// </summary>
+        /// <param name="cache">The cache.</param>
+        /// <param name="key">The key.</param>
+        /// <param name="tag">The tag.</param>
+        /// <param name="values">The values.</param>
+        /// <returns></returns>
         public static async Task<MemoryCacheResult> GetResultAsync(this IMemoryCache cache, MemoryCacheRegistration key, object tag, params object[] values) => await GetAsync<MemoryCacheResult>(cache, key, tag, values);
 
+        /// <summary>
+        /// Sets the specified name with value.
+        /// </summary>
+        /// <param name="cache">The cache.</param>
+        /// <param name="name">The name.</param>
+        /// <param name="value">The value.</param>
+        /// <param name="entryOptions">The entry options.</param>
+        /// <exception cref="InvalidOperationException">Not Service Cache Result</exception>
         public static void Set(this IMemoryCache cache, string name, object value, Action<MemoryCacheEntryOptions> entryOptions)
         {
             _rwLock.EnterWriteLock();

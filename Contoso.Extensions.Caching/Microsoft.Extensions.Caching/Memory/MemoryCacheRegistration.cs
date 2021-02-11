@@ -2,41 +2,121 @@
 using System.Diagnostics;
 using System.Text;
 using System.Threading;
-using System.Threading.Tasks;
 
 namespace Microsoft.Extensions.Caching.Memory
 {
-    public delegate object MemoryCacheItemBuilder(object tag, object[] values);
-    public delegate Task<object> MemoryCacheItemBuilderAsync(object tag, object[] values);
+    /// <summary>
+    /// A memory cache key and builder registration object.
+    /// </summary>
     public class MemoryCacheRegistration
     {
         internal readonly ReaderWriterLockSlim _rwLock = new ReaderWriterLockSlim(LockRecursionPolicy.SupportsRecursion);
-        public MemoryCacheRegistration(string name, MemoryCacheItemBuilder builder, params string[] cacheTags)
+        /// <summary>
+        /// Initializes a new instance of the <see cref="MemoryCacheRegistration"/> class.
+        /// </summary>
+        /// <param name="name">The name.</param>
+        /// <param name="builder">The builder.</param>
+        /// <param name="cacheTags">The cache tags.</param>
+        public MemoryCacheRegistration(string name, CacheItemBuilder builder, params string[] cacheTags)
             : this(new StackTrace(), name, null, builder, null, cacheTags != null && cacheTags.Length > 0 ? (a, b) => cacheTags : (Func<object, object[], string[]>)null) { }
-        public MemoryCacheRegistration(string name, MemoryCacheEntryOptions entryOptions, MemoryCacheItemBuilder builder, params string[] cacheTags)
+        /// <summary>
+        /// Initializes a new instance of the <see cref="MemoryCacheRegistration"/> class.
+        /// </summary>
+        /// <param name="name">The name.</param>
+        /// <param name="entryOptions">The entry options.</param>
+        /// <param name="builder">The builder.</param>
+        /// <param name="cacheTags">The cache tags.</param>
+        public MemoryCacheRegistration(string name, MemoryCacheEntryOptions entryOptions, CacheItemBuilder builder, params string[] cacheTags)
             : this(new StackTrace(), name, entryOptions, builder, null, cacheTags != null && cacheTags.Length > 0 ? (a, b) => cacheTags : (Func<object, object[], string[]>)null) { }
-        public MemoryCacheRegistration(string name, MemoryCacheItemBuilder builder, Func<object, object[], string[]> cacheTags)
+        /// <summary>
+        /// Initializes a new instance of the <see cref="MemoryCacheRegistration"/> class.
+        /// </summary>
+        /// <param name="name">The name.</param>
+        /// <param name="builder">The builder.</param>
+        /// <param name="cacheTags">The cache tags.</param>
+        public MemoryCacheRegistration(string name, CacheItemBuilder builder, Func<object, object[], string[]> cacheTags)
             : this(new StackTrace(), name, null, builder, null, cacheTags) { }
-        public MemoryCacheRegistration(string name, int minuteTimeout, MemoryCacheItemBuilder builder, params string[] cacheTags)
+        /// <summary>
+        /// Initializes a new instance of the <see cref="MemoryCacheRegistration"/> class.
+        /// </summary>
+        /// <param name="name">The name.</param>
+        /// <param name="minuteTimeout">The minute timeout.</param>
+        /// <param name="builder">The builder.</param>
+        /// <param name="cacheTags">The cache tags.</param>
+        public MemoryCacheRegistration(string name, int minuteTimeout, CacheItemBuilder builder, params string[] cacheTags)
             : this(new StackTrace(), name, new MemoryCacheEntryOptions().SetSlidingExpiration(TimeSpan.FromMinutes(minuteTimeout)), builder, null, cacheTags != null && cacheTags.Length > 0 ? (a, b) => cacheTags : (Func<object, object[], string[]>)null) { }
-        public MemoryCacheRegistration(string name, int minuteTimeout, MemoryCacheItemBuilder builder, Func<object, object[], string[]> cacheTags)
+        /// <summary>
+        /// Initializes a new instance of the <see cref="MemoryCacheRegistration"/> class.
+        /// </summary>
+        /// <param name="name">The name.</param>
+        /// <param name="minuteTimeout">The minute timeout.</param>
+        /// <param name="builder">The builder.</param>
+        /// <param name="cacheTags">The cache tags.</param>
+        public MemoryCacheRegistration(string name, int minuteTimeout, CacheItemBuilder builder, Func<object, object[], string[]> cacheTags)
             : this(new StackTrace(), name, new MemoryCacheEntryOptions().SetSlidingExpiration(TimeSpan.FromMinutes(minuteTimeout)), builder, null, cacheTags) { }
-        public MemoryCacheRegistration(string name, MemoryCacheEntryOptions entryOptions, MemoryCacheItemBuilder builder, Func<object, object[], string[]> cacheTags)
+        /// <summary>
+        /// Initializes a new instance of the <see cref="MemoryCacheRegistration"/> class.
+        /// </summary>
+        /// <param name="name">The name.</param>
+        /// <param name="entryOptions">The entry options.</param>
+        /// <param name="builder">The builder.</param>
+        /// <param name="cacheTags">The cache tags.</param>
+        public MemoryCacheRegistration(string name, MemoryCacheEntryOptions entryOptions, CacheItemBuilder builder, Func<object, object[], string[]> cacheTags)
             : this(new StackTrace(), name, entryOptions, builder, null, cacheTags) { }
         //
-        public MemoryCacheRegistration(string name, MemoryCacheItemBuilderAsync builder, params string[] cacheTags)
+        /// <summary>
+        /// Initializes a new instance of the <see cref="MemoryCacheRegistration"/> class.
+        /// </summary>
+        /// <param name="name">The name.</param>
+        /// <param name="builder">The builder.</param>
+        /// <param name="cacheTags">The cache tags.</param>
+        public MemoryCacheRegistration(string name, CacheItemBuilderAsync builder, params string[] cacheTags)
             : this(new StackTrace(), name, null, null, builder, cacheTags != null && cacheTags.Length > 0 ? (a, b) => cacheTags : (Func<object, object[], string[]>)null) { }
-        public MemoryCacheRegistration(string name, MemoryCacheEntryOptions entryOptions, MemoryCacheItemBuilderAsync builder, params string[] cacheTags)
+        /// <summary>
+        /// Initializes a new instance of the <see cref="MemoryCacheRegistration"/> class.
+        /// </summary>
+        /// <param name="name">The name.</param>
+        /// <param name="entryOptions">The entry options.</param>
+        /// <param name="builder">The builder.</param>
+        /// <param name="cacheTags">The cache tags.</param>
+        public MemoryCacheRegistration(string name, MemoryCacheEntryOptions entryOptions, CacheItemBuilderAsync builder, params string[] cacheTags)
             : this(new StackTrace(), name, entryOptions, null, builder, cacheTags != null && cacheTags.Length > 0 ? (a, b) => cacheTags : (Func<object, object[], string[]>)null) { }
-        public MemoryCacheRegistration(string name, MemoryCacheItemBuilderAsync builder, Func<object, object[], string[]> cacheTags)
+        /// <summary>
+        /// Initializes a new instance of the <see cref="MemoryCacheRegistration"/> class.
+        /// </summary>
+        /// <param name="name">The name.</param>
+        /// <param name="builder">The builder.</param>
+        /// <param name="cacheTags">The cache tags.</param>
+        public MemoryCacheRegistration(string name, CacheItemBuilderAsync builder, Func<object, object[], string[]> cacheTags)
             : this(new StackTrace(), name, null, null, builder, cacheTags) { }
-        public MemoryCacheRegistration(string name, int minuteTimeout, MemoryCacheItemBuilderAsync builder, params string[] cacheTags)
+        /// <summary>
+        /// Initializes a new instance of the <see cref="MemoryCacheRegistration"/> class.
+        /// </summary>
+        /// <param name="name">The name.</param>
+        /// <param name="minuteTimeout">The minute timeout.</param>
+        /// <param name="builder">The builder.</param>
+        /// <param name="cacheTags">The cache tags.</param>
+        public MemoryCacheRegistration(string name, int minuteTimeout, CacheItemBuilderAsync builder, params string[] cacheTags)
             : this(new StackTrace(), name, new MemoryCacheEntryOptions().SetSlidingExpiration(TimeSpan.FromMinutes(minuteTimeout)), null, builder, cacheTags != null && cacheTags.Length > 0 ? (a, b) => cacheTags : (Func<object, object[], string[]>)null) { }
-        public MemoryCacheRegistration(string name, int minuteTimeout, MemoryCacheItemBuilderAsync builder, Func<object, object[], string[]> cacheTags)
+        /// <summary>
+        /// Initializes a new instance of the <see cref="MemoryCacheRegistration"/> class.
+        /// </summary>
+        /// <param name="name">The name.</param>
+        /// <param name="minuteTimeout">The minute timeout.</param>
+        /// <param name="builder">The builder.</param>
+        /// <param name="cacheTags">The cache tags.</param>
+        public MemoryCacheRegistration(string name, int minuteTimeout, CacheItemBuilderAsync builder, Func<object, object[], string[]> cacheTags)
             : this(new StackTrace(), name, new MemoryCacheEntryOptions().SetSlidingExpiration(TimeSpan.FromMinutes(minuteTimeout)), null, builder, cacheTags) { }
-        public MemoryCacheRegistration(string name, MemoryCacheEntryOptions entryOptions, MemoryCacheItemBuilderAsync builder, Func<object, object[], string[]> cacheTags)
+        /// <summary>
+        /// Initializes a new instance of the <see cref="MemoryCacheRegistration"/> class.
+        /// </summary>
+        /// <param name="name">The name.</param>
+        /// <param name="entryOptions">The entry options.</param>
+        /// <param name="builder">The builder.</param>
+        /// <param name="cacheTags">The cache tags.</param>
+        public MemoryCacheRegistration(string name, MemoryCacheEntryOptions entryOptions, CacheItemBuilderAsync builder, Func<object, object[], string[]> cacheTags)
             : this(new StackTrace(), name, entryOptions, null, builder, cacheTags) { }
-        MemoryCacheRegistration(StackTrace stackTrace, string name, MemoryCacheEntryOptions entryOptions, MemoryCacheItemBuilder builder, MemoryCacheItemBuilderAsync builderAsync, Func<object, object[], string[]> cacheTags)
+        MemoryCacheRegistration(StackTrace stackTrace, string name, MemoryCacheEntryOptions entryOptions, CacheItemBuilder builder, CacheItemBuilderAsync builderAsync, Func<object, object[], string[]> cacheTags)
         {
             if (builder == null && builderAsync == null)
                 throw new ArgumentNullException(nameof(builder));
@@ -48,13 +128,54 @@ namespace Microsoft.Extensions.Caching.Memory
             CacheTags = cacheTags;
         }
 
+        /// <summary>
+        /// Gets the name.
+        /// </summary>
+        /// <value>
+        /// The name.
+        /// </value>
         public string Name { get; internal set; }
-        public MemoryCacheItemBuilder Builder { get; private set; }
-        public MemoryCacheItemBuilderAsync BuilderAsync { get; private set; }
+        /// <summary>
+        /// Gets the builder.
+        /// </summary>
+        /// <value>
+        /// The builder.
+        /// </value>
+        public CacheItemBuilder Builder { get; private set; }
+        /// <summary>
+        /// Gets the builder asynchronous.
+        /// </summary>
+        /// <value>
+        /// The builder asynchronous.
+        /// </value>
+        public CacheItemBuilderAsync BuilderAsync { get; private set; }
+        /// <summary>
+        /// Gets the entry options.
+        /// </summary>
+        /// <value>
+        /// The entry options.
+        /// </value>
         public MemoryCacheEntryOptions EntryOptions { get; private set; }
+        /// <summary>
+        /// Gets the cache tags.
+        /// </summary>
+        /// <value>
+        /// The cache tags.
+        /// </value>
         public Func<object, object[], string[]> CacheTags { get; private set; }
+        /// <summary>
+        /// Gets or sets the post eviction callback.
+        /// </summary>
+        /// <value>
+        /// The post eviction callback.
+        /// </value>
         public PostEvictionDelegate PostEvictionCallback { get; set; }
 
+        /// <summary>
+        /// Gets the name.
+        /// </summary>
+        /// <param name="values">The values.</param>
+        /// <returns></returns>
         public string GetName(params object[] values)
         {
             if (values == null || values.Length == 0)

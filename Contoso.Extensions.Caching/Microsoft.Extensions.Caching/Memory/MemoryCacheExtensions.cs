@@ -9,6 +9,9 @@ using System.Threading;
 
 namespace Microsoft.Extensions.Caching.Memory
 {
+    /// <summary>
+    /// Extensions to IMemoryCache.
+    /// </summary>
     public static class MemoryCacheExtensions
     {
         static PropertyInfo EntriesCollectionProperty;
@@ -26,7 +29,7 @@ namespace Microsoft.Extensions.Caching.Memory
         }
 
         /// <summary>
-        /// Tries the get entry.
+        /// Tries to get the entry.
         /// </summary>
         /// <param name="cache">The cache.</param>
         /// <param name="key">The key.</param>

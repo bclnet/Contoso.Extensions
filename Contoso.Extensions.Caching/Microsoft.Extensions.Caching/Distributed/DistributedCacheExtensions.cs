@@ -7,6 +7,9 @@ using System.Threading;
 
 namespace Microsoft.Extensions.Caching.Distributed
 {
+    /// <summary>
+    /// Extensions to IDistributedCache.
+    /// </summary>
     public static class DistributedCacheExtensions
     {
         /// <summary>

@@ -12,14 +12,37 @@ using System.Threading.Tasks;
 
 namespace Microsoft.Extensions.Caching.Distributed
 {
+    /// <summary>
+    /// Manages the DistributedCache.
+    /// </summary>
     public static class DistributedCacheManager
     {
         static readonly ReaderWriterLockSlim _rwLock = new ReaderWriterLockSlim(LockRecursionPolicy.SupportsRecursion);
         readonly static byte[] EmptyValue = new byte[] { 0 };
 
+        /// <summary>
+        /// Removes the specified key.
+        /// </summary>
+        /// <param name="cache">The cache.</param>
+        /// <param name="key">The key.</param>
+        /// <param name="values">The values.</param>
         public static void Remove(this IDistributedCache cache, DistributedCacheRegistration key, params object[] values) => cache.Remove(key.GetName(values));
+        /// <summary>
+        /// Determines whether this instance contains the object.
+        /// </summary>
+        /// <param name="cache">The cache.</param>
+        /// <param name="key">The key.</param>
+        /// <param name="values">The values.</param>
+        /// <returns>
+        ///   <c>true</c> if [contains] [the specified key]; otherwise, <c>false</c>.
+        /// </returns>
         public static bool Contains(this IDistributedCache cache, DistributedCacheRegistration key, params object[] values) => cache.Contains(key.GetName(values));
 
+        /// <summary>
+        /// Touches the specified names.
+        /// </summary>
+        /// <param name="cache">The cache.</param>
+        /// <param name="names">The names.</param>
         public static void Touch(this IDistributedCache cache, string[] names)
         {
             if (names == null || names.Length == 0)
@@ -35,11 +58,55 @@ namespace Microsoft.Extensions.Caching.Distributed
             }
         }
 
+        /// <summary>
+        /// Gets the specified key.
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="cache">The cache.</param>
+        /// <param name="key">The key.</param>
+        /// <param name="tag">The tag.</param>
+        /// <param name="values">The values.</param>
+        /// <returns></returns>
+        /// <exception cref="ArgumentNullException">key</exception>
         public static T Get<T>(this IDistributedCache cache, DistributedCacheRegistration key, object tag, object[] values) => GetOrCreateUsingLock<T>(cache, key ?? throw new ArgumentNullException(nameof(key)), tag, values);
+        /// <summary>
+        /// Gets the specified key as DistributedCacheResult.
+        /// </summary>
+        /// <param name="cache">The cache.</param>
+        /// <param name="key">The key.</param>
+        /// <param name="tag">The tag.</param>
+        /// <param name="values">The values.</param>
+        /// <returns></returns>
         public static DistributedCacheResult GetResult(this IDistributedCache cache, DistributedCacheRegistration key, object tag, params object[] values) => Get<DistributedCacheResult>(cache, key, tag, values);
+        /// <summary>
+        /// Gets the specified key.
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="cache">The cache.</param>
+        /// <param name="key">The key.</param>
+        /// <param name="tag">The tag.</param>
+        /// <param name="values">The values.</param>
+        /// <returns></returns>
+        /// <exception cref="ArgumentNullException">key</exception>
         public static async Task<T> GetAsync<T>(this IDistributedCache cache, DistributedCacheRegistration key, object tag, object[] values) => await GetOrCreateUsingLockAsync<T>(cache, key ?? throw new ArgumentNullException(nameof(key)), tag, values);
+        /// <summary>
+        /// Gets the specified key as DistributedCacheResult.
+        /// </summary>
+        /// <param name="cache">The cache.</param>
+        /// <param name="key">The key.</param>
+        /// <param name="tag">The tag.</param>
+        /// <param name="values">The values.</param>
+        /// <returns></returns>
         public static async Task<DistributedCacheResult> GetResultAsync(this IDistributedCache cache, DistributedCacheRegistration key, object tag, params object[] values) => await GetAsync<DistributedCacheResult>(cache, key, tag, values);
 
+        /// <summary>
+        /// Adds the specified name.
+        /// </summary>
+        /// <param name="cache">The cache.</param>
+        /// <param name="name">The name.</param>
+        /// <param name="value">The value.</param>
+        /// <param name="entryOptions">The entry options.</param>
+        /// <exception cref="InvalidOperationException">Not Service Cache Result</exception>
         public static void Add(this IDistributedCache cache, string name, object value, Action<DistributedCacheEntryOptions> entryOptions)
         {
             _rwLock.EnterWriteLock();
@@ -189,6 +256,9 @@ namespace Microsoft.Extensions.Caching.Distributed
         static T CreateValue<T>(DistributedCacheRegistration key, object tag, object[] values) => (T)key.Builder(tag, values);
         static async Task<T> CreateValueAsync<T>(DistributedCacheRegistration key, object tag, object[] values) => (T)await key.BuilderAsync(tag, values);
 
+        /// <summary>
+        /// The serializer.
+        /// </summary>
         public static Func<object, byte[]> Serialize = (value) =>
         {
             if (value == null)
@@ -202,6 +272,9 @@ namespace Microsoft.Extensions.Caching.Distributed
                 return Compress(s.ToArray());
             }
         };
+        /// <summary>
+        /// The deserializer.
+        /// </summary>
         public static Func<byte[], object> Deserialize = (value) =>
         {
             if (value == null)

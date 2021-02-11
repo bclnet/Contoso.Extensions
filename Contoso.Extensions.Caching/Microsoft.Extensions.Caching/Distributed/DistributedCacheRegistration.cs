@@ -2,41 +2,121 @@
 using System.Diagnostics;
 using System.Text;
 using System.Threading;
-using System.Threading.Tasks;
 
 namespace Microsoft.Extensions.Caching.Distributed
 {
-    public delegate object DistributedCacheItemBuilder(object tag, object[] values);
-    public delegate Task<object> DistributedCacheItemBuilderAsync(object tag, object[] values);
+    /// <summary>
+    /// A distributed cache key and builder registration object.
+    /// </summary>
     public class DistributedCacheRegistration
     {
         internal readonly ReaderWriterLockSlim _rwLock = new ReaderWriterLockSlim(LockRecursionPolicy.SupportsRecursion);
-        public DistributedCacheRegistration(string name, DistributedCacheItemBuilder builder, params string[] cacheTags)
+        /// <summary>
+        /// Initializes a new instance of the <see cref="DistributedCacheRegistration"/> class.
+        /// </summary>
+        /// <param name="name">The name.</param>
+        /// <param name="builder">The builder.</param>
+        /// <param name="cacheTags">The cache tags.</param>
+        public DistributedCacheRegistration(string name, CacheItemBuilder builder, params string[] cacheTags)
             : this(new StackTrace(), name, null, builder, null, cacheTags != null && cacheTags.Length > 0 ? (a, b) => cacheTags : (Func<object, object[], string[]>)null) { }
-        public DistributedCacheRegistration(string name, DistributedCacheEntryOptions entryOptions, DistributedCacheItemBuilder builder, params string[] cacheTags)
+        /// <summary>
+        /// Initializes a new instance of the <see cref="DistributedCacheRegistration"/> class.
+        /// </summary>
+        /// <param name="name">The name.</param>
+        /// <param name="entryOptions">The entry options.</param>
+        /// <param name="builder">The builder.</param>
+        /// <param name="cacheTags">The cache tags.</param>
+        public DistributedCacheRegistration(string name, DistributedCacheEntryOptions entryOptions, CacheItemBuilder builder, params string[] cacheTags)
             : this(new StackTrace(), name, entryOptions, builder, null, cacheTags != null && cacheTags.Length > 0 ? (a, b) => cacheTags : (Func<object, object[], string[]>)null) { }
-        public DistributedCacheRegistration(string name, DistributedCacheItemBuilder builder, Func<object, object[], string[]> cacheTags)
+        /// <summary>
+        /// Initializes a new instance of the <see cref="DistributedCacheRegistration"/> class.
+        /// </summary>
+        /// <param name="name">The name.</param>
+        /// <param name="builder">The builder.</param>
+        /// <param name="cacheTags">The cache tags.</param>
+        public DistributedCacheRegistration(string name, CacheItemBuilder builder, Func<object, object[], string[]> cacheTags)
             : this(new StackTrace(), name, null, builder, null, cacheTags) { }
-        public DistributedCacheRegistration(string name, int minuteTimeout, DistributedCacheItemBuilder builder, params string[] cacheTags)
+        /// <summary>
+        /// Initializes a new instance of the <see cref="DistributedCacheRegistration"/> class.
+        /// </summary>
+        /// <param name="name">The name.</param>
+        /// <param name="minuteTimeout">The minute timeout.</param>
+        /// <param name="builder">The builder.</param>
+        /// <param name="cacheTags">The cache tags.</param>
+        public DistributedCacheRegistration(string name, int minuteTimeout, CacheItemBuilder builder, params string[] cacheTags)
             : this(new StackTrace(), name, new DistributedCacheEntryOptions().SetSlidingExpiration(TimeSpan.FromMinutes(minuteTimeout)), builder, null, cacheTags != null && cacheTags.Length > 0 ? (a, b) => cacheTags : (Func<object, object[], string[]>)null) { }
-        public DistributedCacheRegistration(string name, int minuteTimeout, DistributedCacheItemBuilder builder, Func<object, object[], string[]> cacheTags)
+        /// <summary>
+        /// Initializes a new instance of the <see cref="DistributedCacheRegistration"/> class.
+        /// </summary>
+        /// <param name="name">The name.</param>
+        /// <param name="minuteTimeout">The minute timeout.</param>
+        /// <param name="builder">The builder.</param>
+        /// <param name="cacheTags">The cache tags.</param>
+        public DistributedCacheRegistration(string name, int minuteTimeout, CacheItemBuilder builder, Func<object, object[], string[]> cacheTags)
             : this(new StackTrace(), name, new DistributedCacheEntryOptions().SetSlidingExpiration(TimeSpan.FromMinutes(minuteTimeout)), builder, null, cacheTags) { }
-        public DistributedCacheRegistration(string name, DistributedCacheEntryOptions entryOptions, DistributedCacheItemBuilder builder, Func<object, object[], string[]> cacheTags)
+        /// <summary>
+        /// Initializes a new instance of the <see cref="DistributedCacheRegistration"/> class.
+        /// </summary>
+        /// <param name="name">The name.</param>
+        /// <param name="entryOptions">The entry options.</param>
+        /// <param name="builder">The builder.</param>
+        /// <param name="cacheTags">The cache tags.</param>
+        public DistributedCacheRegistration(string name, DistributedCacheEntryOptions entryOptions, CacheItemBuilder builder, Func<object, object[], string[]> cacheTags)
             : this(new StackTrace(), name, entryOptions, builder, null, cacheTags) { }
         //
-        public DistributedCacheRegistration(string name, DistributedCacheItemBuilderAsync builder, params string[] cacheTags)
+        /// <summary>
+        /// Initializes a new instance of the <see cref="DistributedCacheRegistration"/> class.
+        /// </summary>
+        /// <param name="name">The name.</param>
+        /// <param name="builder">The builder.</param>
+        /// <param name="cacheTags">The cache tags.</param>
+        public DistributedCacheRegistration(string name, CacheItemBuilderAsync builder, params string[] cacheTags)
             : this(new StackTrace(), name, null, null, builder, cacheTags != null && cacheTags.Length > 0 ? (a, b) => cacheTags : (Func<object, object[], string[]>)null) { }
-        public DistributedCacheRegistration(string name, DistributedCacheEntryOptions entryOptions, DistributedCacheItemBuilderAsync builder, params string[] cacheTags)
+        /// <summary>
+        /// Initializes a new instance of the <see cref="DistributedCacheRegistration"/> class.
+        /// </summary>
+        /// <param name="name">The name.</param>
+        /// <param name="entryOptions">The entry options.</param>
+        /// <param name="builder">The builder.</param>
+        /// <param name="cacheTags">The cache tags.</param>
+        public DistributedCacheRegistration(string name, DistributedCacheEntryOptions entryOptions, CacheItemBuilderAsync builder, params string[] cacheTags)
             : this(new StackTrace(), name, entryOptions, null, builder, cacheTags != null && cacheTags.Length > 0 ? (a, b) => cacheTags : (Func<object, object[], string[]>)null) { }
-        public DistributedCacheRegistration(string name, DistributedCacheItemBuilderAsync builder, Func<object, object[], string[]> cacheTags)
+        /// <summary>
+        /// Initializes a new instance of the <see cref="DistributedCacheRegistration"/> class.
+        /// </summary>
+        /// <param name="name">The name.</param>
+        /// <param name="builder">The builder.</param>
+        /// <param name="cacheTags">The cache tags.</param>
+        public DistributedCacheRegistration(string name, CacheItemBuilderAsync builder, Func<object, object[], string[]> cacheTags)
             : this(new StackTrace(), name, null, null, builder, cacheTags) { }
-        public DistributedCacheRegistration(string name, int minuteTimeout, DistributedCacheItemBuilderAsync builder, params string[] cacheTags)
+        /// <summary>
+        /// Initializes a new instance of the <see cref="DistributedCacheRegistration"/> class.
+        /// </summary>
+        /// <param name="name">The name.</param>
+        /// <param name="minuteTimeout">The minute timeout.</param>
+        /// <param name="builder">The builder.</param>
+        /// <param name="cacheTags">The cache tags.</param>
+        public DistributedCacheRegistration(string name, int minuteTimeout, CacheItemBuilderAsync builder, params string[] cacheTags)
             : this(new StackTrace(), name, new DistributedCacheEntryOptions().SetSlidingExpiration(TimeSpan.FromMinutes(minuteTimeout)), null, builder, cacheTags != null && cacheTags.Length > 0 ? (a, b) => cacheTags : (Func<object, object[], string[]>)null) { }
-        public DistributedCacheRegistration(string name, int minuteTimeout, DistributedCacheItemBuilderAsync builder, Func<object, object[], string[]> cacheTags)
+        /// <summary>
+        /// Initializes a new instance of the <see cref="DistributedCacheRegistration"/> class.
+        /// </summary>
+        /// <param name="name">The name.</param>
+        /// <param name="minuteTimeout">The minute timeout.</param>
+        /// <param name="builder">The builder.</param>
+        /// <param name="cacheTags">The cache tags.</param>
+        public DistributedCacheRegistration(string name, int minuteTimeout, CacheItemBuilderAsync builder, Func<object, object[], string[]> cacheTags)
             : this(new StackTrace(), name, new DistributedCacheEntryOptions().SetSlidingExpiration(TimeSpan.FromMinutes(minuteTimeout)), null, builder, cacheTags) { }
-        public DistributedCacheRegistration(string name, DistributedCacheEntryOptions entryOptions, DistributedCacheItemBuilderAsync builder, Func<object, object[], string[]> cacheTags)
+        /// <summary>
+        /// Initializes a new instance of the <see cref="DistributedCacheRegistration"/> class.
+        /// </summary>
+        /// <param name="name">The name.</param>
+        /// <param name="entryOptions">The entry options.</param>
+        /// <param name="builder">The builder.</param>
+        /// <param name="cacheTags">The cache tags.</param>
+        public DistributedCacheRegistration(string name, DistributedCacheEntryOptions entryOptions, CacheItemBuilderAsync builder, Func<object, object[], string[]> cacheTags)
             : this(new StackTrace(), name, entryOptions, null, builder, cacheTags) { }
-        DistributedCacheRegistration(StackTrace stackTrace, string name, DistributedCacheEntryOptions entryOptions, DistributedCacheItemBuilder builder, DistributedCacheItemBuilderAsync builderAsync, Func<object, object[], string[]> cacheTags)
+        DistributedCacheRegistration(StackTrace stackTrace, string name, DistributedCacheEntryOptions entryOptions, CacheItemBuilder builder, CacheItemBuilderAsync builderAsync, Func<object, object[], string[]> cacheTags)
         {
             if (builder == null && builderAsync == null)
                 throw new ArgumentNullException(nameof(builder));
@@ -48,12 +128,47 @@ namespace Microsoft.Extensions.Caching.Distributed
             CacheTags = cacheTags;
         }
 
+        /// <summary>
+        /// Gets the name.
+        /// </summary>
+        /// <value>
+        /// The name.
+        /// </value>
         public string Name { get; internal set; }
-        public DistributedCacheItemBuilder Builder { get; private set; }
-        public DistributedCacheItemBuilderAsync BuilderAsync { get; private set; }
+        /// <summary>
+        /// Gets the builder.
+        /// </summary>
+        /// <value>
+        /// The builder.
+        /// </value>
+        public CacheItemBuilder Builder { get; private set; }
+        /// <summary>
+        /// Gets the builder asynchronous.
+        /// </summary>
+        /// <value>
+        /// The builder asynchronous.
+        /// </value>
+        public CacheItemBuilderAsync BuilderAsync { get; private set; }
+        /// <summary>
+        /// Gets the entry options.
+        /// </summary>
+        /// <value>
+        /// The entry options.
+        /// </value>
         public DistributedCacheEntryOptions EntryOptions { get; private set; }
+        /// <summary>
+        /// Gets the cache tags.
+        /// </summary>
+        /// <value>
+        /// The cache tags.
+        /// </value>
         public Func<object, object[], string[]> CacheTags { get; private set; }
 
+        /// <summary>
+        /// Gets the name.
+        /// </summary>
+        /// <param name="values">The values.</param>
+        /// <returns></returns>
         public string GetName(params object[] values)
         {
             if (values == null || values.Length == 0)

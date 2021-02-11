@@ -76,10 +76,13 @@ SendEmail       | void   | Sends the email. | Host, Ssl, UseDefaultCredentials
 
 ### Example
 
+``` Json
+{
+  "ConnectionStrings": {
+    "Main": "Server=mail.server.com;ToEmail=x@x.com;FromEmail=info@x.com;Subject=Alpha:{0}"
+  }
+}
 ```
-Server=mail.server.com;ToEmail=x@x.com;FromEmail=info@x.com;Subject=Alpha:{0}
-```
-
 ```C#
 var email = EmailConnection(Config.MyConnectionString);
 email.SendEmail("Subject", "Message");
@@ -90,20 +93,27 @@ email.SendEmail("Subject", "Message");
 The following are data services:
 
 * `DbService` - Database connection which checks for azure and generates token when needed. 
-* `EmailService` - Email connection that looks up connection string. 
+* `EmailService` - Email connection that looks up connection string.
 
 ## DbService
 *Database connection which checks for azure and generates token when needed.*
 
-Method              | Type   | Description                  | Value
----                 | ---    | ---                          | ---
-CommandTimeout      | int    | Default command timeout.     | 60
-LongCommandTimeout  | int    | A long command timeout.      | 360
-VeryLongCommandTimeout | int | A very long command timeout. | 3600
+Method              | Type   | Description
+---                 | ---    | ---
+CommandTimeout      | int    | Default command timeout. (value: 60)
+LongCommandTimeout  | int    | A long command timeout. (value: 360)
+VeryLongCommandTimeout | int | A very long command timeout. (value: 3600)
 GetConnection       | IDbConnection | Gets the connection, adding an Access Token if DataSource is Azure.
 GetConnectionString | string | Gets the connection string, adding an Access Token if DataSource is Azure.
 
 ### Example
+``` Json
+{
+  "ConnectionStrings": {
+    "Main": "{Some Connection String}"
+  }
+}
+```
 ```C#
 static readonly IDbService _dbService = new DbService();
 
@@ -115,8 +125,8 @@ using (var db = _dbService.GetConnection())
 ## EmailService
 *Email connection that looks up connection string.*
 
-Method              | Type   | Description                  | Value
----                 | ---    | ---                          | ---
+Method              | Type   | Description
+---                 | ---    | ---
 GetConnection       | IEmailConnection | Gets the connection.
 
 ### Example
