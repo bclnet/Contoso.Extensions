@@ -13,6 +13,69 @@ namespace Contoso.Extensions.Data
     public interface IEmailConnection
     {
         /// <summary>
+        /// Gets the from email.
+        /// </summary>
+        /// <value>
+        /// From email.
+        /// </value>
+        string FromEmail { get; }
+
+        /// <summary>
+        /// Gets the to email.
+        /// </summary>
+        /// <value>
+        /// To email.
+        /// </value>
+        string ToEmail { get; }
+
+        /// <summary>
+        /// Gets the subject.
+        /// </summary>
+        /// <value>
+        /// The subject.
+        /// </value>
+        string Subject { get; }
+
+        /// <summary>
+        /// Gets the server.
+        /// </summary>
+        /// <value>
+        /// The server.
+        /// </value>
+        string Server { get; }
+
+        /// <summary>
+        /// Gets the pickup directory.
+        /// </summary>
+        /// <value>
+        /// The pickup directory.
+        /// </value>
+        string PickupDirectory { get; }
+
+        /// <summary>
+        /// Gets the credential.
+        /// </summary>
+        /// <value>
+        /// The credential.
+        /// </value>
+        NetworkCredential Credential { get; }
+
+        /// <summary>
+        /// Gets the parameters.
+        /// </summary>
+        /// <value>
+        /// The parameters.
+        /// </value>
+        IDictionary<string, string> Params { get; }
+
+        /// <summary>
+        /// Builds the message for an exception.
+        /// </summary>
+        /// <param name="exception">The exception.</param>
+        /// <returns></returns>
+        string BuildMessageForException(Exception exception);
+
+        /// <summary>
         /// Sends the email.
         /// </summary>
         /// <param name="subject">The subject.</param>
@@ -69,7 +132,7 @@ namespace Contoso.Extensions.Data
         }
 
         /// <summary>
-        /// Gets from email.
+        /// Gets the from email.
         /// </summary>
         /// <value>
         /// From email.
@@ -77,7 +140,7 @@ namespace Contoso.Extensions.Data
         public string FromEmail { get; }
 
         /// <summary>
-        /// Converts to email.
+        /// Get the to email.
         /// </summary>
         /// <value>
         /// To email.
@@ -122,7 +185,19 @@ namespace Contoso.Extensions.Data
         /// <value>
         /// The parameters.
         /// </value>
-        public Dictionary<string, string> Params { get; } = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
+        public IDictionary<string, string> Params { get; } = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
+
+        /// <summary>
+        /// Builds the message for an exception.
+        /// </summary>
+        /// <param name="exception">The exception.</param>
+        /// <returns></returns>
+        public string BuildMessageForException(Exception exception)
+        {
+            var b = new StringBuilder();
+            SerializeException(b, exception);
+            return b.ToString();
+        }
 
         /// <summary>
         /// Sends the email.
@@ -132,7 +207,7 @@ namespace Contoso.Extensions.Data
         /// <param name="func">The function.</param>
         /// <param name="toEmail">To email.</param>
         /// <param name="fromEmail">From email.</param>
-        public void SendEmail(string subject, Exception exception, Action<MailMessage> func = null, string toEmail = null, string fromEmail = null) => SendEmail(subject, BuildExceptionMessage(exception), func);
+        public void SendEmail(string subject, Exception exception, Action<MailMessage> func = null, string toEmail = null, string fromEmail = null) => SendEmail(subject, BuildMessageForException(exception), func);
 
         /// <summary>
         /// Sends the email.
@@ -152,7 +227,7 @@ namespace Contoso.Extensions.Data
                     client.Host = Server;
                     if (Params.TryGetValue("Host", out var z)) client.Port = int.Parse(z);
                     if (Params.TryGetValue("Ssl", out _)) client.EnableSsl = true;
-                    if (Params.TryGetValue("DefaultCredentials", out _)) client.UseDefaultCredentials = true;
+                    if (Params.TryGetValue("UseDefaultCredentials", out _)) client.UseDefaultCredentials = true;
                     if (!string.IsNullOrEmpty(Credential.UserName) || !string.IsNullOrEmpty(Credential.Password))
                         client.Credentials = Credential;
                 }
@@ -173,18 +248,6 @@ namespace Contoso.Extensions.Data
                     mail.To.Add(new MailAddress(to));
                 client.Send(mail);
             }
-        }
-
-        /// <summary>
-        /// Builds the exception message.
-        /// </summary>
-        /// <param name="e">The e.</param>
-        /// <returns></returns>
-        public string BuildExceptionMessage(Exception e)
-        {
-            var b = new StringBuilder();
-            SerializeException(b, e);
-            return b.ToString();
         }
 
         protected virtual void SerializeException(StringBuilder b, Exception e)

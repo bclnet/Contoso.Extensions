@@ -34,21 +34,21 @@ namespace Contoso.Extensions.Services
     public class DbService : IDbService
     {
         /// <summary>
-        /// Gets the command timeout.
+        /// Default command timeout.
         /// </summary>
         /// <value>
         /// The command timeout.
         /// </value>
         public static int CommandTimeout => 60;
         /// <summary>
-        /// Gets the long command timeout.
+        /// A long command timeout.
         /// </summary>
         /// <value>
         /// The long command timeout.
         /// </value>
         public static int LongCommandTimeout => 360;
         /// <summary>
-        /// Gets the very long command timeout.
+        /// A very long command timeout.
         /// </summary>
         /// <value>
         /// The very long command timeout.
@@ -56,7 +56,7 @@ namespace Contoso.Extensions.Services
         public static int VeryLongCommandTimeout => 3600;
 
         /// <summary>
-        /// Gets the connection.
+        /// Gets the connection, adding an Access Token if DataSource is Azure.
         /// </summary>
         /// <param name="name">The name.</param>
         /// <param name="skipAzure">if set to <c>true</c> [skip azure].</param>
@@ -76,7 +76,7 @@ namespace Contoso.Extensions.Services
         }
 
         /// <summary>
-        /// Gets the connection string.
+        /// Gets the connection string, adding an Access Token if DataSource is Azure.
         /// </summary>
         /// <param name="name">The name.</param>
         /// <param name="skipAzure">if set to <c>true</c> [skip azure].</param>

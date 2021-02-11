@@ -26,7 +26,6 @@ THE SOFTWARE.
 using System.Collections;
 using System.ComponentModel.Design.Serialization;
 using System.Globalization;
-using System.Security.Permissions;
 
 namespace System.ComponentModel
 {
@@ -45,7 +44,7 @@ namespace System.ComponentModel
         public NameableConverter(Type type)
         {
             NameableType = type;
-            UnderlyingType = Nullable.GetUnderlyingType(type) ?? throw new ArgumentException(nameof(type), "type");
+            UnderlyingType = Nameable.GetUnderlyingType(type) ?? throw new ArgumentException(nameof(type), "type");
             UnderlyingTypeConverter = TypeDescriptor.GetConverter(UnderlyingType);
         }
 

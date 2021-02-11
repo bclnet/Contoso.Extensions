@@ -17,7 +17,7 @@ namespace Contoso.Extensions
         public static IConfiguration Configuration { get; set; }
 
         /// <summary>
-        /// Configures the specified configure.
+        /// Sets the configuration using a polyfill.
         /// </summary>
         /// <param name="configure">The configure.</param>
         /// <param name="prefix">The prefix.</param>

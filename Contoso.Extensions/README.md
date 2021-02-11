@@ -1,53 +1,14 @@
 # Contoso.Extensions
 extensions to the System namespace
 
+# Linq Extensions
 
-# Nameable (using System)
-*Represents a type that can be assigned a name.*
+The following are class extensions to the `System.Linq` namespace:
 
-### Example
-```C#
-class Sample
-{
-	public Nameable<int> UserOne { get; set; }
-	public Nameable<int> UserTwo { get; set; }
-}
+* `source.GroupAt(size)` groups the `source` at every `size` items.
+* `source.ToPagedList(criteria)` and `source.ToPagedArray(criteria, out metadata)` paginate the `source` by `criteria`.
 
-var sample = new Sample
-{
-    UserOne = 123,
-    UserTwo = new Nameable<int>(456, "John Doe")
-};
-```
-
-
-# Grammar (using System.Globalization)
-*Provides basic grammatological methods.*
-
-Method      | Description
----         | ---
-Vowels      | The vowels
-WasWere     | Adds was/were based on `number` to string `stringToAppend`
-Pluralize   | Makes a string plural by adding "s" to it if `number` is greater than one
-Possesive   | Makes a string possesive by adding "'s" to it if the string does not end with "s"
-HeShe       | Returns he/she or they based on `gender`
-HeSheHas    | Returns he/she or they have based on `gender`
-HimHer      | Returns him/her or them based on `gender`
-HisHers     | Returns his/hers or theirs based on `gender`
-PluralizePhrase | Returns the number and makes string `stringToAppend` based on `number`
-PluralizePhraseWithArticles | Converts the `stringToAppend` to plural
-Nth         | Returns to its nth form based on `number`
-
-### Example
-```C#
-var gender = "Male";
-Console.WriteLine($"{Grammar.HeShe(gender)} has won {Grammar.HisHers(gender)} {Grammar.Nth(2)} game.");
-
-// he has won his 2nd game.
-```
-
-
-# Linq GroupAt (using System.Linq)
+## Linq - GroupAt (using System.Linq)
 *Groups at interval.*
 
 ### Example
@@ -56,8 +17,7 @@ foreach (var batch in Enumerable.Range(1, 100).GroupAt(10))
 	batch.Dump();
 ```
 
-
-# Linq Paging (using System.Linq)
+## Linq - Paging (using System.Linq)
 *creates pagable set at interval.*
 
 ### IPagedList
@@ -71,7 +31,7 @@ public class PagedList<T> : List<T>, IPagedList<T> {}
 
 Method      | Type | Description
 ---         | ---  | ---
-Set | IEnumerable<T> | Gets the set.
+Set         | IEnumerable<T> | Gets the set.
 Pages       | int  | Gets the pages.
 TotalItems  | int  | Gets the total items.
 Items       | int  | Gets the items.
@@ -135,11 +95,29 @@ foreach (var batch in Enumerable.Range(1, 100).ToPagedList(0))
 ```
 
 
-# MultipartRequestHelper (using System.Net)
-*MultipartRequestHelper*
+
+# Security
+
+Credentials contains sensitive information and should never be commited to source control. Connection strings may contain such credentials.
+
+Some common solutions are:
+
+* Encrypt part or all of the configuration file, and store the encrypted version.
+* Use Environment Variables to store the sensitive information (default).
+* Use an external file or keystore, outside of source control, and retrieve values at runtime.
+
+On Microsoft Windows, `Credential Manager` is a built-in keystore which stores credentals per user. You can find it in your control panel, or by using the following command:
+```
+rundll32.exe keymgr.dll, KRShowKeyMgr
+```
+
+The following are security classes:
+
+* `CredentialManager` read, write, or deletes these values.
+* `ParsedConnectionString` parses a connection string, and can lookup credentials in credental manager.
 
 
-# CredentialManager (using System.Security)
+## CredentialManager (using System.Security)
 *CredentialManager*
 
 Method      | Type | Description
@@ -158,14 +136,14 @@ Console.WriteLine(cred.UserName);
 ```
 
 
-# ParsedConnectionString (using System.Security)
+## ParsedConnectionString (using System.Security)
 *ParsedConnectionString*
 
 Method      | Type | Description
 ---         | ---  | ---
 Server      | string | Gets the server.
 Credential  | NetworkCredential | Gets the credential.
-Params | Dictionary<string, string> | Gets the parameters.
+Params      | Dictionary<string, string> | Gets the parameters.
 
 ### Example
 ```C#
@@ -178,3 +156,81 @@ Console.WriteLine($"{connString.Server}, {connString.Credential.UserName}");
 var connString = new ParsedConnectionString("Server=Database;Credential=LookupName");
 Console.WriteLine($"{connString.Server}, {connString.Credential.UserName}");
 ```
+
+
+
+# General
+
+The following are general classes:
+
+* `AppContextSwitch` internal AppContext switches.
+* `Grammar` provides basic grammatological methods.
+* `Nameable` represents a type that can be assigned a name.
+
+## AppContextSwitch (using System)
+*Toggles internal AppContext switches.*
+
+Method      | Description
+---         | ---
+EnableUnsafeBinaryFormatterSerialization | Gets or sets a value indicating whether to enable unsafe binary formatter serialization.
+
+### Example
+```C#
+AppContextSwitch.EnableUnsafeBinaryFormatterSerialization = true;
+```
+
+
+## Grammar (using System.Globalization)
+*Provides basic grammatological methods.*
+
+Method      | Description
+---         | ---
+Vowels      | The vowels
+WasWere     | Adds was/were based on `number` to string `stringToAppend`
+Pluralize   | Makes a string plural by adding "s" to it if `number` is greater than one
+Possesive   | Makes a string possesive by adding "'s" to it if the string does not end with "s"
+HeShe       | Returns he/she or they based on `gender`
+HeSheHas    | Returns he/she or they have based on `gender`
+HimHer      | Returns him/her or them based on `gender`
+HisHers     | Returns his/hers or theirs based on `gender`
+PluralizePhrase | Returns the number and makes string `stringToAppend` based on `number`
+PluralizePhraseWithArticles | Converts the `stringToAppend` to plural
+Nth         | Returns to its nth form based on `number`
+
+### Example
+```C#
+var gender = "Male";
+Console.WriteLine($"{Grammar.HeShe(gender)} has won {Grammar.HisHers(gender)} {Grammar.Nth(2)} game.");
+
+// he has won his 2nd game.
+```
+
+## Nameable (using System)
+*Represents a type that can be assigned a name.*
+
+### Example
+```C#
+class Sample
+{
+	public Nameable<int> UserOne { get; set; }
+	public Nameable<int> UserTwo { get; set; }
+}
+
+var sample = new Sample
+{
+    UserOne = 123,
+    UserTwo = new Nameable<int>(456, "John Doe")
+};
+```
+
+
+
+# Other
+
+The following are unclassified classes:
+
+* `MultipartRequestHelper` used for multipart processing.
+
+## MultipartRequestHelper (using System.Net)
+*MultipartRequestHelper*
+
